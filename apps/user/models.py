@@ -6,6 +6,8 @@ from django.db import models
 from model_utils import Choices
 from django.utils.translation import gettext_lazy as _
 
+from apps.kauth.models import KPermissionsMixin
+
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -67,7 +69,7 @@ class UserManager(BaseUserManager):
         return self.get(**{self.model.USERNAME_FIELD: username})
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, KPermissionsMixin):
     IDENTITY_CARD_TYPE = Choices(
         (1, 'ID', '身份证'),
         (2, 'PASSPORT', '护照'),
@@ -104,6 +106,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     city = models.CharField(max_length=128, blank=True, verbose_name='城市')
     is_new = models.BooleanField(default=True, verbose_name='是否为新用户')
     is_staff = models.BooleanField(default=False, verbose_name='是否为员工')
+    is_superuser = models.BooleanField(
+        _('superuser status'),
+        default=False,
+        help_text=_(
+            'Designates that this user has all permissions without '
+            'explicitly assigning them.'
+        ),
+    )
     channel = models.SmallIntegerField(default=CHANNEL_TYPE.EMAIL, verbose_name='注册类型')
     platform = models.SmallIntegerField(default=PLATFORM_TYPE.WEB, verbose_name='注册平台')
     is_active = models.BooleanField(default=True, verbose_name='是否有效')
@@ -129,22 +139,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):  # __unicode__ on Python 2
         return self.nickname
 
-    def has_perm(self, perm, obj=None):
-        """Does the user have a specific permission?"""
-        # Simplest possible answer: Yes, always
-        return True
-
-    def has_module_perms(self, app_label):
-        """Does the user have permissions to view the app `app_label`?"""
-        # Simplest possible answer: Yes, always
-        return True
-
 
 class UserOAuth(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='用户')
     oauth_type = models.SmallIntegerField(verbose_name='第三方类型')
-    oauth_id = models.CharField(max_length=250, verbose_name='第三方id')
-    oauth_token = models.CharField(max_length=250, verbose_name='第三方token')
+    oauth_id = models.CharField(max_length=255, verbose_name='第三方id')
+    oauth_token = models.CharField(max_length=255, verbose_name='第三方token')
     expires = models.IntegerField(blank=True, verbose_name='过期时间')
     is_active = models.BooleanField(default=True, verbose_name='是否有效')
     date_added = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')

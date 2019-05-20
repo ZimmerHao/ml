@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import login, logout
 from django.db.models import Q
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import AnonymousUser, Permission, Group
+from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
 from rest_framework import generics, permissions, status, viewsets
