@@ -8,11 +8,11 @@ from django.utils.translation import gettext_lazy as _
 
 
 class KPermission(models.Model):
-    resource = models.CharField(max_length=255, verbose_name='第三方类型')
-    verb = models.CharField(max_length=255, verbose_name='第三方id')
-    is_active = models.BooleanField(default=True, verbose_name='是否有效')
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')
-    date_updated = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    resource = models.CharField(max_length=255, verbose_name=_(""))
+    verb = models.CharField(max_length=255, verbose_name=_(""))
+    is_active = models.BooleanField(default=True, verbose_name=_(""))
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_(""))
+    date_updated = models.DateTimeField(auto_now=True, verbose_name=_(""))
 
     class Meta:
         app_label = 'kauth'
@@ -20,15 +20,15 @@ class KPermission(models.Model):
 
 
 class KRole(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("resource"))
+    name = models.CharField(max_length=255, verbose_name=_("k8s role name"))
     permissions = models.ManyToManyField(
         Permission,
         verbose_name=_('k8s permissions'),
         blank=True,
     )
-    is_active = models.BooleanField(default=True, verbose_name='是否有效')
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')
-    date_updated = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    is_active = models.BooleanField(default=True)
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_(""))
+    date_updated = models.DateTimeField(auto_now=True, verbose_name=_(""))
 
     class Meta:
         app_label = 'kauth'

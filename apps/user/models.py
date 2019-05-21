@@ -70,17 +70,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, KPermissionsMixin):
-    IDENTITY_CARD_TYPE = Choices(
-        (1, 'ID', '身份证'),
-        (2, 'PASSPORT', '护照'),
-    )
-
-    PLATFORM_TYPE = Choices(
-        (1, 'IOS', 'iOS'),
-        (2, 'ANDROID', 'Android'),
-        (3, 'WEB', 'Web'),
-    )
-
     CHANNEL_TYPE = Choices(
         (1, 'MOBILE', '手机'),
         (2, 'EMAIL', '邮箱'),
@@ -91,21 +80,17 @@ class User(AbstractBaseUser, KPermissionsMixin):
         (2, 'FEMALE', '女'),
     )
 
-    nickname = models.CharField(max_length=30, verbose_name=_('nickname'))
-    avatar = models.CharField(max_length=128, blank=True, verbose_name=_('avatar'))
+    nickname = models.CharField(max_length=255, verbose_name=_('nickname'))
+    avatar = models.CharField(max_length=255, blank=True, verbose_name=_('avatar'))
     email = models.EmailField(blank=True, unique=True, verbose_name=_('email'))
     mobile = models.CharField(max_length=30, blank=True, unique=True, verbose_name=_('mobile'))
     gender = models.SmallIntegerField(default=-1, verbose_name=_('gender'))
-    date_birth = models.DateField(null=True, blank=True, verbose_name=_('birthday'))
+    birthday = models.DateField(null=True, blank=True, verbose_name=_('birthday'))
     age = models.SmallIntegerField(default=-1, verbose_name=_('age'))
-    ip = models.GenericIPAddressField(null=True, blank=True, verbose_name=_('ip'))
-    id_number = models.CharField(max_length=128, blank=True, verbose_name=_('id'))
-    id_type = models.SmallIntegerField(default=-1, verbose_name=_('id type'))
-    country = models.CharField(max_length=128, blank=True, verbose_name='国家')
-    province = models.CharField(max_length=128, blank=True, verbose_name='省份')
-    city = models.CharField(max_length=128, blank=True, verbose_name='城市')
-    is_new = models.BooleanField(default=True, verbose_name='是否为新用户')
-    is_staff = models.BooleanField(default=False, verbose_name='是否为员工')
+    country = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
+    province = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
+    city = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
+    is_staff = models.BooleanField(default=False, verbose_name=_('id type'))
     is_superuser = models.BooleanField(
         _('superuser status'),
         default=False,
@@ -114,11 +99,10 @@ class User(AbstractBaseUser, KPermissionsMixin):
             'explicitly assigning them.'
         ),
     )
-    channel = models.SmallIntegerField(default=CHANNEL_TYPE.EMAIL, verbose_name='注册类型')
-    platform = models.SmallIntegerField(default=PLATFORM_TYPE.WEB, verbose_name='注册平台')
-    is_active = models.BooleanField(default=True, verbose_name='是否有效')
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')
-    date_updated = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    channel = models.SmallIntegerField(default=CHANNEL_TYPE.EMAIL, verbose_name=_('id type'))
+    is_active = models.BooleanField(default=True, verbose_name=_('id type'))
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('id type'))
+    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('id type'))
 
     objects = UserManager()
 
@@ -141,14 +125,14 @@ class User(AbstractBaseUser, KPermissionsMixin):
 
 
 class UserOAuth(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name='用户')
-    oauth_type = models.SmallIntegerField(verbose_name='第三方类型')
-    oauth_id = models.CharField(max_length=255, verbose_name='第三方id')
-    oauth_token = models.CharField(max_length=255, verbose_name='第三方token')
-    expires = models.IntegerField(blank=True, verbose_name='过期时间')
-    is_active = models.BooleanField(default=True, verbose_name='是否有效')
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name='添加时间')
-    date_updated = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name=_('id type'))
+    oauth_type = models.SmallIntegerField(verbose_name=_('id type'))
+    oauth_id = models.CharField(max_length=255, verbose_name=_('id type'))
+    oauth_token = models.CharField(max_length=255, verbose_name=_('id type'))
+    expires = models.IntegerField(blank=True, verbose_name=_('id type'))
+    is_active = models.BooleanField(default=True, verbose_name=_('id type'))
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('id type'))
+    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('id type'))
 
     class Meta:
         app_label = 'user'
