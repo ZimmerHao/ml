@@ -1,18 +1,14 @@
-import copy
-
-from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin, Permission, Group
 from django.db import models
 from model_utils import Choices
 from django.utils.translation import gettext_lazy as _
 
 
 class KPermission(models.Model):
-    resource = models.CharField(max_length=255, verbose_name=_(""))
-    verb = models.CharField(max_length=255, verbose_name=_(""))
-    is_active = models.BooleanField(default=True, verbose_name=_(""))
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_(""))
-    date_updated = models.DateTimeField(auto_now=True, verbose_name=_(""))
+    resource = models.CharField(max_length=255, verbose_name=_("k8s resource"))
+    verb = models.CharField(max_length=255, verbose_name=_("k8s verb"))
+    is_active = models.BooleanField(default=True, verbose_name=_('active status'))
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('created date'))
+    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('updated date'))
 
     class Meta:
         app_label = 'kauth'
@@ -21,14 +17,14 @@ class KPermission(models.Model):
 
 class KRole(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("k8s role name"))
-    permissions = models.ManyToManyField(
-        Permission,
+    k8s_permissions = models.ManyToManyField(
+        KPermission,
         verbose_name=_('k8s permissions'),
         blank=True,
     )
-    is_active = models.BooleanField(default=True)
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_(""))
-    date_updated = models.DateTimeField(auto_now=True, verbose_name=_(""))
+    is_active = models.BooleanField(default=True, verbose_name=_('active status'))
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('created date'))
+    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('updated date'))
 
     class Meta:
         app_label = 'kauth'
@@ -52,7 +48,7 @@ class KPermissionsMixin(models.Model):
         related_query_name="user",
     )
     user_k8s_permissions = models.ManyToManyField(
-        Permission,
+        KPermission,
         verbose_name=_('user k8s permissions'),
         blank=True,
         help_text=_('Specific permissions for this user.'),

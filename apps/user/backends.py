@@ -8,7 +8,7 @@ class UserBackend(object):
 
     def authenticate(self, request, account=None, password=None):
         try:
-            user = User.objects.filter(Q(email=account) | Q(mobile=account)).filter(is_active=True).get()
+            user = User.objects.filter(email=account).filter(is_active=True).get()
         except User.DoesNotExist:
             return AnonymousUser()
 

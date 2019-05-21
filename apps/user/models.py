@@ -18,7 +18,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, nickname, password, email=None, mobile=None, **extra_fields):
+    def create_user(self, nickname, password, email=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
 
@@ -26,15 +26,14 @@ class UserManager(BaseUserManager):
             raise ValueError('The given nickname must be set')
         if not password:
             raise ValueError('The given password must be set')
-        if not (email or mobile):
-            raise ValueError('The given email or mobile must be set')
+        if not email:
+            raise ValueError('The given email must be set')
 
         user_params = dict()
         if email:
             email = self.normalize_email(email)
             user_params.update(email=email)
-        if mobile:
-            user_params.update(mobile=mobile)
+
         user_params.update(nickname=nickname, password=password)
         user_params.update(**extra_fields)
         user_params = self._format_user_params(**user_params)
@@ -70,23 +69,9 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, KPermissionsMixin):
-    CHANNEL_TYPE = Choices(
-        (1, 'MOBILE', '手机'),
-        (2, 'EMAIL', '邮箱'),
-    )
-
-    GENDER_TYPE = Choices(
-        (1, 'MALE', '男'),
-        (2, 'FEMALE', '女'),
-    )
-
     nickname = models.CharField(max_length=255, verbose_name=_('nickname'))
     avatar = models.CharField(max_length=255, blank=True, verbose_name=_('avatar'))
     email = models.EmailField(blank=True, unique=True, verbose_name=_('email'))
-    mobile = models.CharField(max_length=30, blank=True, unique=True, verbose_name=_('mobile'))
-    gender = models.SmallIntegerField(default=-1, verbose_name=_('gender'))
-    birthday = models.DateField(null=True, blank=True, verbose_name=_('birthday'))
-    age = models.SmallIntegerField(default=-1, verbose_name=_('age'))
     country = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
     province = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
     city = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
@@ -99,10 +84,9 @@ class User(AbstractBaseUser, KPermissionsMixin):
             'explicitly assigning them.'
         ),
     )
-    channel = models.SmallIntegerField(default=CHANNEL_TYPE.EMAIL, verbose_name=_('id type'))
-    is_active = models.BooleanField(default=True, verbose_name=_('id type'))
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('id type'))
-    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('id type'))
+    is_active = models.BooleanField(default=True, verbose_name=_('active status'))
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('created date'))
+    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('updated date'))
 
     objects = UserManager()
 
@@ -125,14 +109,18 @@ class User(AbstractBaseUser, KPermissionsMixin):
 
 
 class UserOAuth(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, verbose_name=_('id type'))
-    oauth_type = models.SmallIntegerField(verbose_name=_('id type'))
-    oauth_id = models.CharField(max_length=255, verbose_name=_('id type'))
-    oauth_token = models.CharField(max_length=255, verbose_name=_('id type'))
-    expires = models.IntegerField(blank=True, verbose_name=_('id type'))
-    is_active = models.BooleanField(default=True, verbose_name=_('id type'))
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('id type'))
-    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('id type'))
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name=_('user'))
+    oauth_type = models.SmallIntegerField(verbose_name=_('third party type'))
+    oauth_id = models.CharField(max_length=255, verbose_name=_('third party id'))
+    oauth_token = models.CharField(max_length=255, verbose_name=_('third party token'))
+    expires = models.IntegerField(blank=True, verbose_name=_('expire time'))
+    is_active = models.BooleanField(default=True, verbose_name=_('active status'))
+    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('created date'))
+    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('updated date'))
 
     class Meta:
         app_label = 'user'
