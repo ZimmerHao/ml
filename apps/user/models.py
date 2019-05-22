@@ -3,7 +3,6 @@ import copy
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin, Permission, Group
 from django.db import models
-from model_utils import Choices
 from django.utils.translation import gettext_lazy as _
 
 from apps.kauth.models import KPermissionsMixin
@@ -71,14 +70,12 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, KPermissionsMixin):
     nickname = models.CharField(max_length=255, verbose_name=_('nickname'))
     avatar = models.CharField(max_length=255, blank=True, verbose_name=_('avatar'))
-    email = models.EmailField(blank=True, unique=True, verbose_name=_('email'))
+    email = models.EmailField(unique=True, verbose_name=_('email'))
     country = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
-    province = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
-    city = models.CharField(max_length=255, blank=True, verbose_name=_('id type'))
     is_staff = models.BooleanField(default=False, verbose_name=_('id type'))
     is_superuser = models.BooleanField(
-        _('superuser status'),
         default=False,
+        verbose_name=_('superuser status'),
         help_text=_(
             'Designates that this user has all permissions without '
             'explicitly assigning them.'

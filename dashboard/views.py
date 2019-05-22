@@ -6,6 +6,7 @@ from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 
+from apps.user.models import User
 from apps.user.serializers import UserBaseSerializer
 from apps.kauth.models import KPermission, KRole
 from apps.kauth.serializers import KPermissionSerializer, KRoleSerializer, KPermissionCreateSerializer, \
@@ -48,34 +49,19 @@ class LogoutView(generics.GenericAPIView):
 
 
 class UserKRolesView(generics.GenericAPIView):
-    model = KPermission
     permission_classes = (
         permissions.AllowAny,
     )
     serializer_class = UserBaseSerializer
-    ordering_fields = ('-id',)
 
-    def get_queryset(self):
-        return self.model.objects.filter(is_active=True)
+    def post(self, request, id):
+        role_id = request.data.get('k8s_role_id')
 
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid(raise_exception=True):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        data = serializer.validated_data
-        data['user'] = request.user
-        user_address = self.model.objects.create(**data)
-        return Response(data=self.serializer_class(user_address).data, status=status.HTTP_201_CREATED)
-
-    def list(self, request):
-        queryset = self.model.objects.filter(user=request.user, is_active=True)
-        serializer = self.get_serializer(queryset, many=True)
-        page = self.paginate_queryset(queryset)
-        if page:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        k8s_role = KRole.objects.get(id=role_id)
+        user = User.objects.get(pk=id)
+        user.k8s_roles = k8s_role
+        user.save()
+        return Response(data=self.serializer_class(user).data, status=status.HTTP_201_CREATED)
 
 
 class KPermissionViewSet(viewsets.GenericViewSet):

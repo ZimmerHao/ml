@@ -257,14 +257,3 @@ USE_CELERY = False
 
 SILENCED_SYSTEM_CHECKS = ['auth.W004']
 
-MAILGUN_API_KEY = "28a56d9d55265055eb0f0d63c03faf2d-4412457b-0a03fdfd"
-MAILGUN_SENDER_DOMAIN = "goparcel.io"
-
-ANYMAIL = {
-    "MAILGUN_API_KEY": MAILGUN_API_KEY,
-    "MAILGUN_SENDER_DOMAIN": MAILGUN_SENDER_DOMAIN,
-}
-
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = "offical@goparcel.io"
-

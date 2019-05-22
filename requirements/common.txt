@@ -14,4 +14,4 @@ celery==4.1.0
 msgpack-python==0.4.8
 django-cors-headers==2.1.0
 nickname_generator
-django-anymail[mailgun]
+pandas
