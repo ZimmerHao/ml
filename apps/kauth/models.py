@@ -1,14 +1,15 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from model_utils import Choices
 from django.utils.translation import gettext_lazy as _
 
 
 class KResource(models.Model):
     resource_name = models.CharField(max_length=255, verbose_name=_('resource name'))
-    short_name = models.CharField(max_length=255, verbose_name=_('resource short name'))
-    api_group = models.CharField(max_length=255, verbose_name=_('api group'))
+    short_name = models.CharField(max_length=255, blank=True, verbose_name=_('resource short name'))
+    api_group = models.CharField(max_length=255, blank=True, verbose_name=_('api group'))
     namespaced = models.BooleanField(default=False, verbose_name=_('is namespace resource'))
-    kind = models.CharField(max_length=255, verbose_name=_("resource kind"))
+    kind = models.CharField(max_length=255, verbose_name=_('resource kind'))
     is_active = models.BooleanField(default=True, verbose_name=_('active status'))
     date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('created date'))
     date_updated = models.DateTimeField(auto_now=True, verbose_name=_('updated date'))
@@ -18,7 +19,8 @@ class KResource(models.Model):
         db_table = 'k8s_resource'
 
 
-class KPermission(models.Model):
+class KRole(models.Model):
+
     VERB_TYPE = Choices(
         "get",
         "list",
@@ -29,32 +31,18 @@ class KPermission(models.Model):
         "proxy",
         "redirect",
         "delete",
-        "deletecollection"
-        "*"
+        "deletecollection",
+        "all"
     )
 
-    resource = models.ForeignKey(
-        KResource,
-        on_delete=models.CASCADE,
-        null=True,
-        verbose_name=_("k8s resource"))
-    verb = models.CharField(choices=VERB_TYPE, max_length=255, verbose_name=_("k8s verb"))
-    is_active = models.BooleanField(default=True, verbose_name=_('active status'))
-    date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('created date'))
-    date_updated = models.DateTimeField(auto_now=True, verbose_name=_('updated date'))
-
-    class Meta:
-        app_label = 'kauth'
-        db_table = 'k8s_permission'
-
-
-class KRole(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("k8s role name"))
-    k8s_permissions = models.ManyToManyField(
-        KPermission,
-        verbose_name=_('k8s permissions'),
+    namespace = models.CharField(max_length=255, verbose_name=_("k8s namespace name"))
+    k8s_resources = models.ManyToManyField(
+        KResource,
+        verbose_name=_('k8s resources'),
         blank=True,
     )
+    verbs = ArrayField(models.CharField(max_length=255), blank=True, verbose_name='k8s api resource verb')
     is_active = models.BooleanField(default=True, verbose_name=_('active status'))
     date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('created date'))
     date_updated = models.DateTimeField(auto_now=True, verbose_name=_('updated date'))
@@ -64,15 +52,14 @@ class KRole(models.Model):
         db_table = 'k8s_role'
 
 
-class KPermissionsMixin(models.Model):
-    k8s_role = models.ForeignKey(
+class KRolesMixin(models.Model):
+
+    k8s_roles = models.ManyToManyField(
         KRole,
-        verbose_name=_('k8s roles'),
+        verbose_name=_('user k8s roles'),
         blank=True,
-        help_text=_(
-            'The roles this user belongs to. A user will get all k8s permissions '
-            'granted to each of their roles.'
-        ),
+        related_name="user_set",
+        related_query_name="user",
     )
 
     class Meta:

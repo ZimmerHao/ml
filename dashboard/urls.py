@@ -3,7 +3,6 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r'k8s/perms', views.KPermissionViewSet, base_name='dashboard.k8s_permission')
 router.register(r'k8s/roles', views.KRoleViewSet, base_name='dashboard.k8s_role')
 urlpatterns = router.urls
 

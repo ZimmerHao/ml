@@ -1,11 +1,10 @@
 import copy
 
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin, Permission, Group
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.kauth.models import KPermissionsMixin
+from apps.kauth.models import KRolesMixin
 
 
 class UserManager(BaseUserManager):
@@ -67,7 +66,7 @@ class UserManager(BaseUserManager):
         return self.get(**{self.model.USERNAME_FIELD: username})
 
 
-class User(AbstractBaseUser, KPermissionsMixin):
+class User(AbstractBaseUser, KRolesMixin):
     nickname = models.CharField(max_length=255, verbose_name=_('nickname'))
     avatar = models.CharField(max_length=255, blank=True, verbose_name=_('avatar'))
     email = models.EmailField(unique=True, verbose_name=_('email'))
