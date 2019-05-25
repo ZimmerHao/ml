@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser
 
 from apps.user.models import User
 from apps.user.serializers import UserBaseSerializer
-from apps.kauth.models import KRole
+from apps.kauth.models import KRole, KResource
 from apps.kauth.serializers import KRoleSerializer, KRoleCreateSerializer
 from core.exceptions import ValidationException
 
@@ -67,6 +67,9 @@ class KRoleViewSet(viewsets.GenericViewSet):
     model = KRole
     serializer_class = KRoleSerializer
     ordering_fields = ('-id',)
+    permission_classes = (
+        permissions.AllowAny,
+    )
 
     def get_queryset(self):
         return self.model.objects.filter(is_active=True)
@@ -82,8 +85,13 @@ class KRoleViewSet(viewsets.GenericViewSet):
         if not serializer.is_valid(raise_exception=True):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         data = serializer.validated_data
-        role = self.model.objects.create(**data)
-        return Response(data=self.serializer_class(role).data, status=status.HTTP_201_CREATED)
+        resource_id = data["resource_id"]
+        resource = KResource.objects.get(id=resource_id)
+
+        print(data)
+        # role = self.model.objects.create(**data)
+        # return Response(data=self.serializer_class(role).data, status=status.HTTP_201_CREATED)
+        return Response(data="ok", status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
         permission = self.get_object()

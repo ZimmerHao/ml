@@ -14,7 +14,7 @@ class KRoleCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = KRole
-        fields = ('name', 'k8s_permission_id', 'date_added', 'date_updated')
+        fields = ('name', 'namespace', 'resource_id', 'verb', 'verbs', 'date_added', 'date_updated')
 
 
 class KRoleSerializer(serializers.ModelSerializer):

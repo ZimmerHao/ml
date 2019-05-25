@@ -16,7 +16,7 @@ serviceaccounts,sa,,TRUE,ServiceAccount
 services,svc,,TRUE,Service
 mutatingwebhookconfigurations,,admissionregistration.k8s.io,FALSE,MutatingWebhookConfiguration
 validatingwebhookconfigurations,,admissionregistration.k8s.io,FALSE,ValidatingWebhookConfiguration
-customresourcedefinitions,"crd, crds",apiextensions.k8s.io,FALSE,CustomResourceDefinition
+customresourcedefinitions,crd,apiextensions.k8s.io,FALSE,CustomResourceDefinition
 apiservices,,apiregistration.k8s.io,FALSE,APIService
 controllerrevisions,,apps,TRUE,ControllerRevision
 daemonsets,ds,apps,TRUE,DaemonSet
