@@ -9,7 +9,7 @@ from rest_framework.parsers import JSONParser
 from apps.user.models import User
 from apps.user.serializers import UserBaseSerializer
 from apps.kauth.models import KRole, KResource
-from apps.kauth.serializers import KRoleSerializer, KRoleCreateSerializer
+from apps.kauth.serializers import KRoleSerializer, KRoleCreateSerializer, KRoleUpdateSerializer
 from core.exceptions import ValidationException
 
 
@@ -75,8 +75,10 @@ class KRoleViewSet(viewsets.GenericViewSet):
         return self.model.objects.filter(is_active=True)
 
     def get_serializer_class(self):
-        if self.action in ['create', 'update']:
+        if self.action == 'create':
             return KRoleCreateSerializer
+        elif self.action == 'update':
+            return KRoleUpdateSerializer
         else:
             return self.serializer_class
 
@@ -88,14 +90,16 @@ class KRoleViewSet(viewsets.GenericViewSet):
         resource_id = data["resource_id"]
         resource = KResource.objects.get(id=resource_id)
 
-        print(data)
-        # role = self.model.objects.create(**data)
-        # return Response(data=self.serializer_class(role).data, status=status.HTTP_201_CREATED)
-        return Response(data="ok", status=status.HTTP_201_CREATED)
+        role = self.model(name=data["name"], namespace=data["namespace"], verbs=data["verbs"])
+        role.save()
+
+        role.k8s_resources.add(resource)
+        role.save()
+        return Response(data=self.serializer_class(role).data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
-        permission = self.get_object()
-        serializer = self.get_serializer_class()(permission)
+        role = self.get_object()
+        serializer = self.get_serializer_class()(role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def list(self, request):
@@ -115,8 +119,8 @@ class KRoleViewSet(viewsets.GenericViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         data = serializer.validated_data
-        name = data['name']
-        role.name = name
+        verbs = data['verbs']
+        role.verbs = verbs
         role.save()
         role.refresh_from_db()
         return Response(data=self.serializer_class(role).data, status=status.HTTP_200_OK)

@@ -36,7 +36,7 @@ class KRole(models.Model):
     )
 
     name = models.CharField(max_length=255, verbose_name=_("k8s role name"))
-    namespace = models.CharField(max_length=255, verbose_name=_("k8s namespace name"))
+    namespace = models.CharField(unique=True, max_length=255, verbose_name=_("k8s namespace name"))
     k8s_resources = models.ManyToManyField(
         KResource,
         verbose_name=_('k8s resources'),
