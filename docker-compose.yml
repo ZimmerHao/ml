@@ -2,10 +2,15 @@ version: '3'
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:5000
+    command: gunicorn --workers 3
+              --bind 0.0.0.0:5000
+              --env DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+              --access-logfile /tmp/ml/access.log
+              --error-logfile /tmp/ml/error.log apps.wsgi
     env_file:
       - .env
     volumes:
       - .:/code
+      - "/tmp/ml:/tmp/ml"
     ports:
       - "5000:5000"
