@@ -31,10 +31,10 @@
    echo "DJANGO_SETTINGS_MODULE=settings.local" > .env
    ```
 3. run server
-    ```
-    docker-compose build --build-arg MODE=prod web
-    docker-compose up -d
-    ```
+   ```
+   docker-compose build --build-arg MODE=prod web
+   docker-compose up -d
+   ```
 
 ## Run on prod (k8s)
 

@@ -28,7 +28,6 @@ class LoginView(generics.GenericAPIView):
         password = request.data.get('password')
 
         user = authenticate(request, account=account, password=password)
-
         if isinstance(user, AnonymousUser):
             raise ValidationException("user not found")
 
