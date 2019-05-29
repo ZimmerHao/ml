@@ -45,6 +45,9 @@
    * If you run on mac, please configure shared path
    * Don't forget to create `logs` dir when run local
 
+## TODO:
+1. Init DDL to load K8S resource table into PG at Django migration
+2. Allow null values for `short_name`, `api_group` in the k8s_resource table
 
 
 
