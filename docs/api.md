@@ -140,3 +140,90 @@ curl -X POST \
   -H 'X-CSRFToken: 07C6pFXg8nwkpjeSztxtWAvCue57HVOjIrFHRz3U9IIWRkvgddTSoKUldtowwGHd' \
   -H 'cache-control: no-cache'
 ```
+
+## 用户分配k8s role
+
+```
+curl -X POST \
+  http://192.168.60.10:8000/dashboard/users/1/k8s/roles \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: be2f6354-b0a2-4cbe-92e4-0adadb6df6b1' \
+  -H 'X-CSRFToken: a2l4ooBZ6ag6S8Y4HjCDgJg7K1PV1fFSyrr7Uc1QzpP0bAmTS0WlKOy3XGFtleuu' \
+  -H 'cache-control: no-cache' \
+  -d '{
+	"k8s_role_id": 1
+}'
+
+{
+    "id": 1,
+    "date_added": "2019-05-25T14:45:58.545025Z",
+    "date_updated": "2019-05-26T10:51:41.263270Z",
+    "last_login": "2019-05-26T09:37:19.832290Z",
+    "nickname": "Thadasime",
+    "avatar": "",
+    "email": "526662774@qq.com",
+    "country": "",
+    "is_active": true,
+    "k8s_roles": [
+        1
+    ]
+}
+```
+
+## 用户的k8s role
+
+```
+curl -X GET \
+  http://192.168.60.10:8000/dashboard/users/1/k8s/roles \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: 3e7f9206-c32e-468a-bc91-8b3d8a7ded3a' \
+  -H 'X-CSRFToken: a2l4ooBZ6ag6S8Y4HjCDgJg7K1PV1fFSyrr7Uc1QzpP0bAmTS0WlKOy3XGFtleuu' \
+  -H 'cache-control: no-cache' \
+  -d '{
+	"k8s_role_id": 1
+}'
+
+{
+    "id": 1,
+    "date_added": "2019-05-25T14:45:58.545025Z",
+    "date_updated": "2019-05-26T10:54:58.224504Z",
+    "last_login": "2019-05-26T09:37:19.832290Z",
+    "nickname": "Thadasime",
+    "avatar": "",
+    "email": "526662774@qq.com",
+    "country": "",
+    "is_active": true,
+    "k8s_roles": [
+        1
+    ]
+}
+
+```
+
+## 删除用户的k8s role
+
+```
+curl -X DELETE \
+  http://192.168.60.10:8000/dashboard/users/1/k8s/roles \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: ed4e9fc0-6cb1-4b11-9766-f29bd562433c' \
+  -H 'X-CSRFToken: a2l4ooBZ6ag6S8Y4HjCDgJg7K1PV1fFSyrr7Uc1QzpP0bAmTS0WlKOy3XGFtleuu' \
+  -H 'cache-control: no-cache' \
+  -d '{
+	"k8s_role_id": 1
+}'
+
+{
+    "id": 1,
+    "date_added": "2019-05-25T14:45:58.545025Z",
+    "date_updated": "2019-05-26T10:51:52.935923Z",
+    "last_login": "2019-05-26T09:37:19.832290Z",
+    "nickname": "Thadasime",
+    "avatar": "",
+    "email": "526662774@qq.com",
+    "country": "",
+    "is_active": true,
+    "k8s_roles": []
+}
+```
+

@@ -53,14 +53,31 @@ class UserKRolesView(generics.GenericAPIView):
     )
     serializer_class = UserBaseSerializer
 
-    def post(self, request, id):
+    def post(self, request, pk=None):
         role_id = request.data.get('k8s_role_id')
-
-        k8s_role = KRole.objects.get(id=role_id)
-        user = User.objects.get(pk=id)
-        user.k8s_roles = k8s_role
+        k8s_role = KRole.objects.get(pk=role_id)
+        if not k8s_role.is_active:
+            raise ValidationException("k8s role error")
+        user = User.objects.get(pk=pk)
+        user.k8s_roles.add(k8s_role)
         user.save()
         return Response(data=self.serializer_class(user).data, status=status.HTTP_201_CREATED)
+
+    def get(self, request, pk=None):
+        user = User.objects.get(pk=pk)
+        return Response(data=self.serializer_class(user).data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk=None):
+        role_id = request.data.get('k8s_role_id')
+        k8s_role = KRole.objects.get(pk=role_id)
+        if not k8s_role.is_active:
+            raise ValidationException("k8s role error")
+
+        user = User.objects.get(pk=pk)
+        user.k8s_roles.remove(k8s_role)
+        user.save()
+        user.refresh_from_db()
+        return Response(data=self.serializer_class(user).data, status=status.HTTP_200_OK)
 
 
 class KRoleViewSet(viewsets.GenericViewSet):
