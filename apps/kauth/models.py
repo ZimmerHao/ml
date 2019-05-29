@@ -42,7 +42,7 @@ class KRole(models.Model):
         verbose_name=_('k8s resources'),
         blank=True,
     )
-    verbs = ArrayField(models.CharField(max_length=255), blank=True, verbose_name='k8s api resource verb')
+    verbs = ArrayField(models.CharField(max_length=255), blank=True, verbose_name=_('k8s api resource verb'))
     is_active = models.BooleanField(default=True, verbose_name=_('active status'))
     date_added = models.DateTimeField(auto_now_add=True, verbose_name=_('created date'))
     date_updated = models.DateTimeField(auto_now=True, verbose_name=_('updated date'))
