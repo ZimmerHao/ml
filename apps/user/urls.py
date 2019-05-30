@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 from . import views
 
@@ -6,8 +6,8 @@ router = DefaultRouter()
 urlpatterns = router.urls
 
 urlpatterns += [
-    url(r'^login$', views.LoginView.as_view(), name='api.user.login'),
-    url(r'^logout$', views.LogoutView.as_view(), name='api.user.logout'),
-    url(r'^signup$', views.SignUpView.as_view(), name='api.user.signup'),
-    url(r'^password$', views.PasswordResetView.as_view(), name='api.user.password.reset'),
+    path('login/', views.LoginView.as_view(), name='api.user.login'),
+    path('logout/', views.LogoutView.as_view(), name='api.user.logout'),
+    path('signup/', views.SignUpView.as_view(), name='api.user.signup'),
+    path('password/', views.PasswordResetView.as_view(), name='api.user.password.reset'),
 ]

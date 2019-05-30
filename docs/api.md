@@ -84,7 +84,7 @@ curl -X PUT \
 
 ```
 curl -X POST \
-  http://192.168.60.10:8000/api/v1/users/signup \
+  http://192.168.60.10:8000/api/v1/users/signup/ \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: 491d5608-aa8b-41c1-aadc-d1a837f99d2c' \
   -H 'cache-control: no-cache' \
@@ -100,7 +100,7 @@ curl -X POST \
 ```
 
 curl -X POST \
-  http://192.168.60.10:8000/api/v1/users/login \
+  http://192.168.60.10:8000/api/v1/users/login/ \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: 1e7237c2-cee4-493d-80a9-a9c41c1cfde6' \
   -H 'X-CSRFToken: 07C6pFXg8nwkpjeSztxtWAvCue57HVOjIrFHRz3U9IIWRkvgddTSoKUldtowwGHd' \
@@ -134,7 +134,7 @@ curl -X POST \
 
 ```
 curl -X POST \
-  http://192.168.60.10:8000/api/v1/users/logout \
+  http://192.168.60.10:8000/api/v1/users/logout/ \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: e1c302ba-a7f7-4c11-9c8e-7e4a344b8d4a' \
   -H 'X-CSRFToken: 07C6pFXg8nwkpjeSztxtWAvCue57HVOjIrFHRz3U9IIWRkvgddTSoKUldtowwGHd' \
@@ -145,7 +145,7 @@ curl -X POST \
 
 ```
 curl -X POST \
-  http://192.168.60.10:8000/dashboard/users/1/k8s/roles \
+  http://192.168.60.10:8000/dashboard/users/1/k8s/roles/ \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: be2f6354-b0a2-4cbe-92e4-0adadb6df6b1' \
   -H 'X-CSRFToken: a2l4ooBZ6ag6S8Y4HjCDgJg7K1PV1fFSyrr7Uc1QzpP0bAmTS0WlKOy3XGFtleuu' \
@@ -174,7 +174,7 @@ curl -X POST \
 
 ```
 curl -X GET \
-  http://192.168.60.10:8000/dashboard/users/1/k8s/roles \
+  http://192.168.60.10:8000/dashboard/users/1/k8s/roles/ \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: 3e7f9206-c32e-468a-bc91-8b3d8a7ded3a' \
   -H 'X-CSRFToken: a2l4ooBZ6ag6S8Y4HjCDgJg7K1PV1fFSyrr7Uc1QzpP0bAmTS0WlKOy3XGFtleuu' \
@@ -204,7 +204,7 @@ curl -X GET \
 
 ```
 curl -X DELETE \
-  http://192.168.60.10:8000/dashboard/users/1/k8s/roles \
+  http://192.168.60.10:8000/dashboard/users/1/k8s/roles/ \
   -H 'Content-Type: application/json' \
   -H 'Postman-Token: ed4e9fc0-6cb1-4b11-9766-f29bd562433c' \
   -H 'X-CSRFToken: a2l4ooBZ6ag6S8Y4HjCDgJg7K1PV1fFSyrr7Uc1QzpP0bAmTS0WlKOy3XGFtleuu' \
