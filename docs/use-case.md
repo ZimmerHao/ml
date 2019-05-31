@@ -1,0 +1,12 @@
+# A use case of submitting a SparkApp to a managed K8S
+
+##  A table of all possible actions on both client and server side
+Need to come up with a better name for the client cli and product itself. For now, SKS, short for **S**erverless **K**ubernetes for **S**park will be the client cli name.
+
+| order | Client                                 | Server                                                                                                                                                                                                                                            |
+|-------|----------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 101   | Signup with Github/Oauth/WebUI         | Create user, group, ns. Assign roles, permissions. Distribute token key, secret.                                                                                                                                                                  |
+| 102   | Login - sks login                      | Authenticate. Assign temp token. Create session.                                                                                                                                                                                                  |
+| 103   | Init - cd repo && git init && sks init | Create CICD pipelines by create a travisCI config file, a Dockerfile and a K8S manifest yaml file. It will serve the purpose that builds and pushes the docker image to a image registry.                                                         |
+| 104   | Push to github - git push/ sks push    | SKS push will supply a latest git hash/docker tag to Server, Server should be able to wait and pull the image once it's there. Alternatively: SKS push should trigger the K8S deployment/set image to allow K8S take effective with latest image. |
+| 105   | View logs - sks logs podName           | Check permission and authentication then render all logs for the particular valid podName back to cli.                                                                                                                                            | 
