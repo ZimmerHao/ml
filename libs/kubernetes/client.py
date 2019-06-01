@@ -27,3 +27,4 @@ class K8SClient:
     def get_logs(self, resource_name: str, namespace: str = "default"):
         ret = self.k_client_v1.read_namespaced_pod_log(resource_name, namespace)
         return ret
+
