@@ -104,8 +104,13 @@ class KRoleViewSet(viewsets.GenericViewSet):
         if not serializer.is_valid(raise_exception=True):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         data = serializer.validated_data
-        resource_id = data["resource_id"]
-        resource = KResource.objects.get(id=resource_id)
+        if data.get("resource_short_name") is not None:
+            resource = KResource.objects.get(short_name=data.get("resource_short_name"))
+        elif data.get("resource_name") is not None:
+            resource = KResource.objects.get(resource_name=data.get("resource_name"))
+        else:
+            resource_id = data["resource_id"]
+            resource = KResource.objects.get(id=resource_id)
 
         role = self.model(name=data["name"], namespace=data["namespace"], verbs=data["verbs"])
         role.save()
