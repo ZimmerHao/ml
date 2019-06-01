@@ -37,7 +37,7 @@ class LoginView(generics.GenericAPIView):
 
 class LogoutView(generics.GenericAPIView):
     permission_classes = (
-        permissions.IsAuthenticated,
+        permissions.IsAdminUser,
     )
     parser_classes = (JSONParser,)
     serializer_class = UserBaseSerializer
@@ -49,7 +49,7 @@ class LogoutView(generics.GenericAPIView):
 
 class UserKRolesView(generics.GenericAPIView):
     permission_classes = (
-        permissions.AllowAny,
+        permissions.IsAdminUser,
     )
     serializer_class = UserBaseSerializer
 
@@ -85,7 +85,7 @@ class KRoleViewSet(viewsets.GenericViewSet):
     serializer_class = KRoleSerializer
     ordering_fields = ('-id',)
     permission_classes = (
-        permissions.AllowAny,
+        permissions.IsAdminUser,
     )
 
     def get_queryset(self):
