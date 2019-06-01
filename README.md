@@ -12,10 +12,10 @@
    ```
    django manage.py migrate --settings=settings.local
    ```
-4. init k8s resource k8s_resource_init --settings=settings.local
+4. init k8s resource 
 
    ```
-   django manage.py 
+   python manage.py k8s_resource_init --settings=settings.local
    ```
 5. run server
 
@@ -44,12 +44,3 @@
    * Please configure Django ALLOWED_HOSTS
    * If you run on mac, please configure shared path
    * Don't forget to create `logs` dir when run local
-
-## TODO:
-1. Init DDL to load K8S resource table into PG at Django migration
-2. Allow null values for `short_name`, `api_group` in the k8s_resource table
-
-
-
-
-
