@@ -1,7 +1,11 @@
-FROM qimo/python3.7:latest
+FROM python:3.7.3-alpine
 ARG MODE
-ENV PYTHONUNBUFFERED 1
+RUN apk update && \
+    apk add --no-cache --virtual .build-deps libffi-dev openssl-dev libxslt-dev libxml2-dev libc-dev zlib-dev postgresql-dev gcc python3-dev musl-dev && \
+    pip install cython
 RUN mkdir /code
 WORKDIR /code
-COPY . /code/
-RUN pip install -r requirements/$MODE.txt
+ADD . /code/
+RUN pip install -r requirements/$MODE.txt --no-cache-dir && \
+    apk del .build-deps && \
+    rm -rf /var/cache/apk/*
