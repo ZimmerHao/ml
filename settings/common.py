@@ -26,9 +26,7 @@ SECRET_KEY = 'oz*l%vik^tjmcg^z^u(&dzleyux257=4my3bistx3*_d3(qjl-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "a2c55cadd8c1f11e9860a0215658c8a6-6be0eabc0a5ca0fa.elb.eu-central-1.amazonaws.com"
-]
+ALLOWED_HOSTS = []
 
 APPEND_SLASH = False
 
@@ -85,7 +83,7 @@ AUTH_USER_MODEL = 'user.User'
 AUTHENTICATION_BACKENDS = ['apps.user.backends.UserBackend',
                            'apps.user.backends.OAuth2Backend']
 
-ROOT_URLCONF = 'apps.urls'
+ROOT_URLCONF = 'urls'
 
 FRONTEND_DIR = os.path.join(BASE_DIR, 'frontend')
 
@@ -105,7 +103,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'apps.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Database
