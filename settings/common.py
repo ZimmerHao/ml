@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.kauth',
     'apps.user',
     'apps.chat',
+    'apps.kops',
 
 ]
 
