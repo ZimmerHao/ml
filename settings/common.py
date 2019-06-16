@@ -47,10 +47,14 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.chat',
 <<<<<<< HEAD
+<<<<<<< HEAD
     'apps.kops',
     'webapp',
 =======
 >>>>>>> django channels
+=======
+    'apps.kops',
+>>>>>>> fix
 
 ]
 
