@@ -44,15 +44,9 @@ INSTALLED_APPS = [
     'apps.kauth',
     'apps.user',
     'apps.chat',
-<<<<<<< HEAD
-<<<<<<< HEAD
     'apps.kops',
     'webapp',
-=======
->>>>>>> django channels
-=======
     'apps.kops',
->>>>>>> fix
 
 ]
 
