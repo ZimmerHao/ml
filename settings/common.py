@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'apps.chat',
     'apps.kops',
     'webapp',
-    'apps.kops',
 
 ]
 
