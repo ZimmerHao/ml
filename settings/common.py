@@ -16,7 +16,6 @@ from kombu import Queue, Exchange
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -41,8 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_extensions',
+    'channels',
     'apps.kauth',
     'apps.user',
+    'apps.chat',
+    'apps.kops',
 
 ]
 
@@ -105,6 +107,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'wsgi.application'
 
+ASGI_APPLICATION = 'routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('192.168.50.20', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -118,7 +129,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -138,7 +148,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -152,7 +161,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
@@ -161,7 +169,6 @@ STATIC_URL = '/frontend/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "frontend"),
 ]
-
 
 LOGGING = {
     'version': 1,
@@ -208,7 +215,6 @@ LOGGING = {
 REDIS_HOST = "192.168.90.10"
 REDIS_PORT = 6379
 
-
 # Celery Configuration
 # CELERY_BROKER_URL = 'redis://:password@hostname:port/db_number'
 CELERY_BROKER_URL = 'amqp://admin:admin@127.0.0.1:5670//'
@@ -221,7 +227,6 @@ CELERY_TIMEZONE = 'Asia/Shanghai'
 CELERY_ENABLE_UTC = True
 CELERY_TASK_TIME_LIMIT = 60 * 6
 
-
 CELERY_IMPORTS = (
     'apps.tasks',
 )
@@ -231,12 +236,10 @@ CELERY_TASK_QUEUES = (
     Queue('api', Exchange('api', 'topic'), routing_key='api.#'),
 )
 
-
 CELERY_TASK_DEFAULT_QUEUE = 'default'
 CELERY_TASK_DEFAULT_EXCHANGE = 'tasks'
 CELERY_TASK_DEFAULT_EXCHANGE_TYPE = 'topic'
 CELERY_TASK_DEFAULT_ROUTING_KEY = 'task.default'
-
 
 CELERY_TASK_ROUTES = {
     'apps.tasks.add': {
@@ -258,4 +261,3 @@ CELERY_BEAT_SCHEDULE = {
 USE_CELERY = False
 
 SILENCED_SYSTEM_CHECKS = ['auth.W004']
-
