@@ -32,7 +32,7 @@ spec:
           - "/code/logs/access.log"
           - "--error-logfile"
           - "/code/logs/error.log"
-          - "apps.wsgi"
+          - "wsgi"
         resources:
           requests:
             memory: "100Mi"
