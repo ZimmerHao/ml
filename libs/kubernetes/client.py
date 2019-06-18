@@ -25,5 +25,5 @@ class K8SClient:
             return "Why don't you try Pods!"
 
     def get_logs(self, resource_name: str, namespace: str = "default"):
-        ret = self.k_client_v1.read_namespaced_pod_log(resource_name, namespace)
+        ret = self.k_client_v1.read_namespaced_pod_log(resource_name, namespace, follow=False)
         return ret

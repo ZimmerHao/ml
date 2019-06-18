@@ -7,7 +7,7 @@ def index(request):
 
 
 def pog_log(request, pod_name):
-    # k = K8SClient()
-    # lines = k.get_logs(pod_name)
-    lines = "..................."
+    k = K8SClient()
+    lines = k.get_logs(pod_name)
+    # lines = "..................."
     return render(request, 'webapp/index.html', {"lines": lines})
