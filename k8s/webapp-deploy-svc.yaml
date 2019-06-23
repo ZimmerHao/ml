@@ -15,6 +15,7 @@ spec:
       labels:
         app: webapp
     spec:
+      serviceAccountName: serviceaccount-data
       containers:
       - name: webapp
         image: docker.io/wangxisea/dp:0.1
@@ -29,9 +30,9 @@ spec:
           - "--env"
           - "DJANGO_SETTINGS_MODULE=settings.local"
           - "--access-logfile"
-          - "/code/logs/access.log"
+          - "-"
           - "--error-logfile"
-          - "/code/logs/error.log"
+          - "-"
           - "wsgi"
         resources:
           requests:
