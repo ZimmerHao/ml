@@ -19,7 +19,6 @@ $("#pod-log-submit").click(function () {
 
 $("#yaml-url-submit").click(function () {
     var yamlURL = document.querySelector('#yaml-url-input').value;
-    alert(yamlURL);
     $.ajax({
         type: 'POST',
         url: '/api/v1/kops/apply_yaml/',
