@@ -1,0 +1,17 @@
+{
+  "name": "frontend",
+  "homepage": "https://github.com/ZimmerHao/ml",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.4.1"
+  }
+}
