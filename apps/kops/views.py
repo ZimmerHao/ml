@@ -14,9 +14,9 @@ class PodLogView(APIView):
 
     def get(self, request):
         pod_name = request.query_params.get("pod_name")
-        # k = K8SClient()
-        # lines = k.get_logs(pod_name)
-        lines = "..................."
+        k = K8SClient()
+        lines = k.get_logs(pod_name)
+        # lines = "..................."
         return Response({"lines": lines}, status=status.HTTP_200_OK)
 
 
@@ -26,9 +26,9 @@ class ApplyYamlView(APIView):
     )
     parser_classes = (JSONParser,)
 
-    def Post(self, request):
+    def post(self, request):
         yaml_url = request.data.get("yaml_url")
-        # k = K8SClient()
-        # lines = k.apply_sparkapp_yaml_file(yaml_url)
-        lines = "..................."
+        k = K8SClient()
+        lines = k.apply_sparkapp_yaml_file(yaml_url)
+        # lines = "..................."
         return Response({"lines": lines}, status=status.HTTP_200_OK)
