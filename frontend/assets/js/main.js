@@ -22,7 +22,8 @@ $("#yaml-url-submit").click(function () {
     $.ajax({
         type: 'POST',
         url: '/api/v1/kops/apply_yaml/',
-        data: {"yaml_url": yamlURL},
+        contentType : 'application/json',
+        data: JSON.stringify({"yaml_url": yamlURL}),
         success: function (data) {
             alert("create success");
         },
