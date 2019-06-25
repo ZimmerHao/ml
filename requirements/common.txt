@@ -19,3 +19,5 @@ nickname_generator==1.0.1
 kubernetes==9.0.0
 channels==2.2.0
 channels-redis==2.4.0
+django-storages==1.7.1
+boto3==1.9.126

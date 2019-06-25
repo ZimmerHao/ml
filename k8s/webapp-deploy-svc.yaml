@@ -34,6 +34,9 @@ spec:
           - "--error-logfile"
           - "-"
           - "wsgi"
+        env:
+          - name: USE_S3
+            value: true
         resources:
           requests:
             memory: "100Mi"

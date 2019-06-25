@@ -41,11 +41,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_extensions",
     "channels",
+    "storages",
     "apps.kauth",
     "apps.user",
     "apps.chat",
     "apps.kops",
     "web",
+
 ]
 
 MIDDLEWARE = [
