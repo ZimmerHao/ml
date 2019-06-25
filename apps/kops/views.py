@@ -28,6 +28,7 @@ class ApplyYamlView(APIView):
 
     def post(self, request):
         yaml_url = request.data.get("yaml_url")
+        print(yaml_url)
         k = K8SClient()
         lines = k.apply_sparkapp_yaml_file(yaml_url)
         # lines = "..................."

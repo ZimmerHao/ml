@@ -2,7 +2,8 @@ from __future__ import absolute_import
 
 from kubernetes import client as kube_client
 from kubernetes import config as kube_config
-from kubernetes import utils as kube_utils
+import yaml
+from urllib.request import urlopen
 
 
 class K8SClient:
@@ -12,6 +13,9 @@ class K8SClient:
         except:
             kube_config.load_kube_config()
         self.k_client_v1 = kube_client.CoreV1Api()
+        self._SPARKAPP_GROUP = "sparkoperator.k8s.io"
+        self._SPARKAPP_VERSION = "v1beta1"
+        self._SPARKAPP_PLURAL = "sparkapplications"
 
     def get_resources_namespaced(self, resource: str, namespace: str = "default"):
         if resource in ["pods", "pod", "po"]:
@@ -31,23 +35,43 @@ class K8SClient:
         )
         return ret
 
-    def apply_sparkapp_yaml_file(
-        self,
-        yaml_url: str,
-        namespace: str = "default",
-        fqdn: str = "sparkoperator.k8s.io",
-        resource: str = "sparkapp",
-        body: dict = {},
-    ):
-        k8s_api_client = kube_client.ApiClient()
-        kube_utils.create_from_yaml(k8s_api_client, yaml_url)
-        k8s_api = kube_client.ExtensionsV1beta1Api(k8s_api_client)
+    def init_k8s_instance_for_spark_app(self, yaml_url: str):
+        response = urlopen(yaml_url)
+        try:
+            yaml_obj = yaml.safe_load(response)
+            api_instance = kube_client.CustomObjectsApi(kube_client.ApiClient())
+            return api_instance, yaml_obj
+        except yaml.YAMLError as e:
+            print(str(e))
 
-        body["apiVersion"] = "sparkoperator.k8s.io/v1beta1"
-        body["kind"] = "sparkapp"
-        body["metadata"]["name"] = "example-spark-pi"
-        res = k8s_api.get_api_resources(
-            namespace=namespace, resource=resource, body=body, fqdn=fqdn
+    def apply_sparkapp_yaml_file(self, yaml_url: str):
+        api_instance, yaml_obj = self.init_k8s_instance_for_spark_app(yaml_url)
+        # Create CRD sparkapp
+        api_instance.create_namespaced_custom_object(
+            group=self._SPARKAPP_GROUP,
+            version=self._SPARKAPP_VERSION,
+            namespace=yaml_obj['metadata']['namespace'],
+            plural=self._SPARKAPP_PLURAL,
+            body=yaml_obj,
         )
 
-        return f"SparkApp {res.metadata.name} created"
+        res = api_instance.get_namespaced_custom_object(
+            group=self._SPARKAPP_GROUP,
+            version=self._SPARKAPP_VERSION,
+            namespace=yaml_obj['metadata']['namespace'],
+            plural=self._SPARKAPP_PLURAL,
+            name=yaml_obj["metadata"]["name"],
+        )
+        return f"SparkApp {res['metadata']['name']} created"
+
+    def delete_sparkapp_yaml_file(self, yaml_url: str,):
+        api_instance,yaml_obj = self.init_k8s_instance_for_spark_app(yaml_url)
+        res = api_instance.delete_namespaced_custom_object(
+            group=self._SPARKAPP_GROUP,
+            version=self._SPARKAPP_VERSION,
+            plural=self._SPARKAPP_PLURAL,
+            namespace=yaml_obj['metadata']['namespace'],
+            name=yaml_obj["metadata"]["name"],
+            body=kube_client.V1DeleteOptions(),
+        )
+        return f"SparkApp {res['details']['name']} deleted"
