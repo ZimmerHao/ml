@@ -74,13 +74,9 @@ CORS_ALLOW_HEADERS = (
 )
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-    ),
-    "DEFAULT_PARSER_CLASSES": (
-        "rest_framework.parsers.FormParser",
-        "rest_framework.parsers.MultiPartParser",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'core.authentication.CsrfExemptSessionAuthentication',
     ),
 }
 

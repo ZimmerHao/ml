@@ -16,7 +16,6 @@ class PodLogView(APIView):
         pod_name = request.query_params.get("pod_name")
         k = K8SClient()
         lines = k.get_logs(pod_name)
-        # lines = "..................."
         return Response({"lines": lines}, status=status.HTTP_200_OK)
 
 
@@ -28,8 +27,18 @@ class ApplyYamlView(APIView):
 
     def post(self, request):
         yaml_url = request.data.get("yaml_url")
-        print(yaml_url)
         k = K8SClient()
         lines = k.apply_sparkapp_yaml_file(yaml_url)
-        # lines = "..................."
+        return Response({"lines": lines}, status=status.HTTP_200_OK)
+
+class DeleteByYamlView(APIView):
+    permission_classes = (
+        permissions.AllowAny,
+    )
+    parser_classes = (JSONParser,)
+
+    def post(self, request):
+        yaml_url = request.data.get("yaml_url")
+        k = K8SClient()
+        lines = k.delete_sparkapp_yaml_file(yaml_url)
         return Response({"lines": lines}, status=status.HTTP_200_OK)

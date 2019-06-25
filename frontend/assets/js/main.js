@@ -30,3 +30,17 @@ $("#yaml-url-submit").click(function () {
         dataType: "json"
     });
 });
+
+$("#yaml-url-delete").click(function () {
+    var yamlURL = document.querySelector('#yaml-url-input').value;
+    $.ajax({
+        type: 'POST',
+        url: '/api/v1/kops/delete_by_yaml/',
+        contentType : 'application/json',
+        data: JSON.stringify({"yaml_url": yamlURL}),
+        success: function (data) {
+            alert("delete success");
+        },
+        dataType: "json"
+    });
+});
