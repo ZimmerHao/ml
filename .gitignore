@@ -37,3 +37,9 @@ eggs/
 project.egg-info/
 
 .env
+
+getssl
+.getssl/
+
+*.key
+*.crt

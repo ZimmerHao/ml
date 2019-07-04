@@ -1,0 +1,106 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: drone
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: drone
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: drone
+    spec:
+      serviceAccountName: serviceaccount-data
+      containers:
+      - name: drone
+        image: drone/drone:1.0.0
+        imagePullPolicy: Always
+        envFrom:
+          - secretRef:
+              name: dp-drone-credentials
+        env:
+          - name: DRONE_USER_CREATE
+            value: username:wangxisea,admin=true
+        ports:
+          - containerPort: 80
+            protocol: TCP
+          - containerPort: 443
+            protocol: TCP
+        resources:
+          requests:
+            cpu: 40m
+            memory: 32Mi
+        volumeMounts:
+          # Persist our configs in an SQLite DB in here
+          - name: drone-sqlite-db
+            mountPath: /var/lib/drone
+          # Enables Docker in Docker
+          - name: docker-socket
+            mountPath: /var/run/docker.sock
+      volumes:
+        - name: drone-sqlite-db
+          hostPath:
+            path: /var/lib/drone
+#            awsElasticBlockStore:
+#              fsType: ext4
+#              volumeID: vol-xxxx
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+
+#---
+#apiVersion: extensions/v1beta1
+#kind: Deployment
+#metadata:
+#  name: drone-agent
+#spec:
+#  replicas: 1
+#  template:
+#    metadata:
+#      labels:
+#        name: drone-agent
+#    spec:
+#      containers:
+#      - name: drone-agent
+#        image: drone/agent:1.0.0
+#        imagePullPolicy: Always
+#        volumeMounts:
+#          - mountPath: /var/run/docker.sock
+#            name: docker-socket
+#        envFrom:
+#          - secretRef:
+#              name: dp-drone-credentials
+#      volumes:
+#        - name: docker-socket
+#          hostPath:
+#            path: /var/run/docker.sock
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: drone
+  labels:
+    app: drone
+spec:
+  selector:
+    app: drone
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
+      protocol: TCP
+    - name: grpc
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+  type: ClusterIP

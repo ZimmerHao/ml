@@ -1,0 +1,219 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: traefik-ingress-controller-default-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+    traefik.ingress.kubernetes.io/redirect-entry-point: http
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+spec:
+  rules:
+  - host: ui.deepvega.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: webapp
+          servicePort: 5000
+  - host: drone.deepvega.com
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: drone
+            servicePort: 80
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-ingress-configmap
+data:
+  traefik.toml: |
+    defaultEntryPoints = ["https","http"]
+    [entryPoints]
+      [entryPoints.http]
+      address = ":80"
+      [entryPoints.https]
+      address = ":443"
+        [entryPoints.https.tls]
+          [[entryPoints.https.tls.certificates]]
+          CertFile = "/ssl/ui/tls.crt"
+          KeyFile = "/ssl/ui/tls.key"
+          [[entryPoints.https.tls.certificates]]
+            CertFile = "/ssl/drone/tls.crt"
+            KeyFile = "/ssl/drone/tls.key"
+    [kubernetes]
+      [kubernetes.ingressEndpoint]
+        publishedService = "default/traefik-ingress-controller-http-service"
+    [ping]
+    entryPoint = "http"
+    [api]
+    entryPoint = "webapp"
+
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: traefik-ingress-controller
+  labels:
+    k8s-app: traefik-ingress-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: traefik-ingress-controller
+  template:
+    metadata:
+      labels:
+        k8s-app: traefik-ingress-controller
+        name: traefik-ingress-controller
+    spec:
+      serviceAccountName: traefik-ingress-serviceaccount
+      terminationGracePeriodSeconds: 35
+      volumes:
+        - name: traefik-ui-tls-cert
+          secret:
+            secretName: traefik-ui-tls-cert
+        - name: traefik-drone-tls-cert
+          secret:
+            secretName: traefik-drone-tls-cert
+        - name: traefik-ingress-configmap
+          configMap:
+            name: traefik-ingress-configmap
+      containers:
+      - image: traefik
+        name: traefik-ingress-controller
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 200m
+            memory: 384Mi
+          requests:
+            cpu: 25m
+            memory: 128Mi
+        livenessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /ping
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /ping
+            port: 80
+            scheme: HTTP
+          periodSeconds: 5
+        volumeMounts:
+          - mountPath: "/ssl/ui"
+            name: "traefik-ui-tls-cert"
+          - mountPath: "/ssl/drone"
+            name: "traefik-drone-tls-cert"
+          - mountPath: "/config"
+            name: "traefik-ingress-configmap"
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        args:
+        - --logLevel=INFO
+        - --configfile=/config/traefik.toml
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefik-ingress-controller-http-service
+  annotations: {}
+    # service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+spec:
+  selector:
+    k8s-app: traefik-ingress-controller
+  ports:
+  - protocol: TCP
+    port: 80
+    name: http
+  - protocol: TCP
+    port: 443
+    name: https
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik-ingress-serviceaccount
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: traefik-ingress-clusterrole
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - endpoints
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: traefik-ingress-clusterrolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik-ingress-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: traefik-ingress-serviceaccount
+  namespace: default
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+ name: traefik-ui-tls-cert
+ labels:
+   k8s-app: traefik-ingress-controller
+type: kubernetes.io/tls
+data:
+ tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNzRENDQVpnQ0NRQ2NTOE9VTGpjSTREQU5CZ2txaGtpRzl3MEJBUXNGQURBYU1SZ3dGZ1lEVlFRRERBOTEKYVM1a1pXVndkbVZuWVM1amIyMHdIaGNOTVRrd056QXpNVE14TkRBd1doY05Namt3TmpNd01UTXhOREF3V2pBYQpNUmd3RmdZRFZRUUREQTkxYVM1a1pXVndkbVZuWVM1amIyMHdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCCkR3QXdnZ0VLQW9JQkFRQ1dDbFMyekxxd2Fkb2hIQ2pOV1Fwa0IwNFdkTU54Z3dBYnhCb3FLa29LanBpS1g0WUUKNExIOVAzVmtCeHFoQUV2ZVNVU2NQK2xqakU1OEF0SHdJTTJqS3JONHFSVGNiaSs5STB1UC9wcWdkZHhIanVwWgo0K2lTdEEvakhDTElJWFo0TXd6UHBFek1WQmx3cXJFOXVwSjkxdkl1THB3eCsweVB1MjhaYUE2YkM2SHMrQmFVCmZ1dUhKQnMxTnZLWFVuY3VWM3lJSjhWclF0ZG9oYkF5K0NTdi9kUlo4TlYwMFZCNkE5L1RIMXFHV1BNTTRUdUcKb0F3Z1FBOXdNQlA1RUQ2QWlmK0VxRkt3SG1kdDUrOHdTM0lMVzBxWmpQT2dNb1NWR0tEUFYvM1QvbzdrNk5KUwpjZUFVcXFndVAvM2VlZ0tOMzVOUExOdnFsSXRvSC92QlVnV0xBZ01CQUFFd0RRWUpLb1pJaHZjTkFRRUxCUUFECmdnRUJBSUM0b0owcCsxY0Z4ckk2L2M4L3d6UCtJTzhvUFRBK01BNGN1SlJ1cmhOV3J3L2R2MEdoMVRxanBkNEwKbHl0eDVZVEp3cEpJbW95ZW8vdjgrVS85OGxZT1dKcEJKQ1o1YUhQa3BENzVYZ2hVejdrMWFXRVdYbFlnQ3IzZApIVC9jQi9FQzJXNzVQb3luMzF1VmFDQ2ZzNlF3d1ZzMW9GV0M5QUtqb3JOamxmWHF6YXBWcm9oM3ZXdW9ZRk1ZCjc1ZE8xN1RvRzhxb3lTNGlTNTZxR0w3WG5wbWh3Zyt1aHhGZDlYL25OaXpERUpPNW81RlMyYzFlSUxiTXUxRUMKQnVXTGhPNzRTQ1U2U1doL2F1NGY0NnFIei9CMERYWHB6TGRsakxEYlZhSFZQajNjOWttUE82RnRtWFZ1MzJaUQpVaGpCREVsOWxXV2lPSWhyanZERGFSV28yMlk9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+ tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRQ1dDbFMyekxxd2Fkb2gKSENqTldRcGtCMDRXZE1OeGd3QWJ4Qm9xS2tvS2pwaUtYNFlFNExIOVAzVmtCeHFoQUV2ZVNVU2NQK2xqakU1OApBdEh3SU0yaktyTjRxUlRjYmkrOUkwdVAvcHFnZGR4SGp1cFo0K2lTdEEvakhDTElJWFo0TXd6UHBFek1WQmx3CnFyRTl1cEo5MXZJdUxwd3grMHlQdTI4WmFBNmJDNkhzK0JhVWZ1dUhKQnMxTnZLWFVuY3VWM3lJSjhWclF0ZG8KaGJBeStDU3YvZFJaOE5WMDBWQjZBOS9USDFxR1dQTU00VHVHb0F3Z1FBOXdNQlA1RUQ2QWlmK0VxRkt3SG1kdAo1Kzh3UzNJTFcwcVpqUE9nTW9TVkdLRFBWLzNUL283azZOSlNjZUFVcXFndVAvM2VlZ0tOMzVOUExOdnFsSXRvCkgvdkJVZ1dMQWdNQkFBRUNnZ0VCQUlFb280UTQrUHlrSW9JZUc0R3FCS2ZYSWdGeXdrd1UyU01OelBnL0x6Mm4KUXVqYkVpTmd5ZGVYcVJaU2h6blJaMzRTMUYwdEoxdnFqQ1YweUFST09MY2RLeUhUYTRIVjJJS1l2NU5WT1FhbwpidGVxejFKU1B3TUt2aUpqTmczUndJbjRhQzdXNE1XRUgrSTlEaFoxWldXdWd3ditVN2N5L05VK0pJVmFiamhJCm1jQ0lxOEtNMUpncWQ3aTM1MkFjbkl0Z3ZjNVRLUS9DSzhFMDFMNzB4SzNhSExMd3hJSm9pQzNJK01CUDFoWVEKcXVyVGExVEpZODZibkhOUXliWUxjOFY5VzJEdEFiQjZrRVV3dEZFUXlTMUhQeHFqVE12a1BMUVFtV2hWWTR0NgpUeGJ5NmFrRzdDdFV2K2p4ZU5YOW9Cenoyb2FWMzJKYURDYlpROWhhRkFFQ2dZRUF4NStDNkNQaUZoMFdXajJkCjhEZm1EbFY1REJ2bGYzR1B2MnNveHJlbCtXZldKV2UxbTJUOHlKdTV5SlBGVHJ2V2dMSzhjekhKWnB2bExJRTcKaG0wYjNZUzAwSzU0UXRMb3JzVVFGblVPZUFrZ0E4RFdNYWNZV3ZwWTNCSTRENzBKdTh6dWJENEFPQWxnd1hFSQo0YjZ6R29wL1RXaXhZczkrb29vd1l4ZlJTREVDZ1lFQXdHb05jcUxqVEp0SWZaT2YxV1VSaG03aFRUYmtFclE5CldlWDdZT1cyN1I4UklOL2Z5UUQxdkMvUlpPUWZiUTJRaHYzeDNBclZoTHlOZzNiMFJxZVgxbUVjQ2tDV0lYSVEKWmxRSnJwMERFS3QzNnNiWHI1dW9JdENQZjZiOGNoUTFCOTduRlZ6NDVLaG1CVDQ1dHl2ZldKTEFBTTZZRFVDVQpMSWVEWGxxcU5uc0NnWUVBaUtFc3dDYVBRQU40b1JzN1ZvZHI5ck9admlmNTFGaXR3cDVkc21WUVBIeE5uaHgxCnVINU9aaC92OE5Eell3ZzlzS2lsUTFMNFBqckZpTWlMTFY3UWk3V2c3SlA5eS83L00xKzl1eUV6WGdVZzNIREkKS2dQc0w1alo2UWF2U0ZaaXF4K0FzS1ZmRVB1YU5jeGYvK0srUTVRM3ZZdkNuWmJYWGZpblZhdWZtb0VDZ1lBSApQTFh1eHVPbndQdDBCYlp3VDFIZWJaTTUxVU8wMUdTdVdmRWZqdVJYZk9DbkRPU2M2ZFZVVTdRYmlGMEtQQVZnCm5uS1haU3pzeGk3SWNCUDJDRjIwcVlobGRsSnZSWndLVFVUajlYSGxFWjM4RGFpVktWU2tvcFdUSnBPK01yWmYKNm1sa3EwK05RaXc4TEQvOWZMLzAwK2cyMzQ1bWlUUkpqSHRMZER1TXV3S0JnR3p4TnhyMTkwY3BTSkRjTWpsUwpaT1Nuci9jUDAveGozTWRMdmFhR3BLVW9VOUl1VldUTFJRTjRTWGxrY2l6TFFEaUYzeEdqaUFxaFQxUGFiYllTCjRpMERpR3dzOTA5bDdvUWtPZkhwMVRHYU9yYTVJdm16eCsyWU00MERtRGlIN1k2ZUhtR2VQak0vRXB2RURoU00KQWp3Z21SSkpDNHhoa0wzb05LclQwK1FWCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+ name: traefik-drone-tls-cert
+ labels:
+   k8s-app: traefik-ingress-controller
+type: kubernetes.io/tls
+data:
+ tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN0akNDQVo0Q0NRQ21VeXZBblFUSThqQU5CZ2txaGtpRzl3MEJBUXNGQURBZE1Sc3dHUVlEVlFRRERCSmsKY205dVpTNWtaV1Z3ZG1WbllTNWpiMjB3SGhjTk1Ua3dOekF6TVRNeE5EUXdXaGNOTWprd05qTXdNVE14TkRRdwpXakFkTVJzd0dRWURWUVFEREJKa2NtOXVaUzVrWldWd2RtVm5ZUzVqYjIwd2dnRWlNQTBHQ1NxR1NJYjNEUUVCCkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEYjU5UVlXY0hKNnpEYWczbTZkS2g0NDlFS1JBWDkya0hqY2l5WldLZkEKRFROaHYyUmFXMk05U2VlR0JVcE9OTGVDQm52VW5vQ0NmZEFRQVk4OCtRcDNraG01ZlFMOXRKNFBXMFMzb2x1Uwp3Qmt5cTU5cHVDMDhkaXJaeGRFSnFxOStubEpMWVlpZjEvQnlsU0wrdTVSbGFweGJWM1h6RklRV2pwaE5KNE5xCnkzL0RCQldjSC93RmxpQmMyQ2NZSUF4YVo0ekMzVzZhUVlrdHdDaVM4eHE2SGFBSGZBU0FTamtsYlFjNWNla1gKc1VaZHpXbmdWbHcyK2NQQWwxMmxMQmhIS3hUSUU3cVRJT0RoMlFxYkJXZWtnbXZPWm5MY211MnBoRGc3VlZ2TApHaDVSWFVFM0pxeG53VGdRWGJwMWZrVWF0UEtqVnhValcrNm96QTc4aGQxcEFnTUJBQUV3RFFZSktvWklodmNOCkFRRUxCUUFEZ2dFQkFFNWsyQXZxVnZxV2QwOWlPZ0N5SlpyUjJUWEtIa0Q4OXB5cFVYV2tEcFlRVEhkYW0vSncKZEEwNmo4WjhNZVdKTE9VOFVYWmVBWWthRzRBNjRUNTVKTGp6VkI3MlF1NHhsazlHQVcxVHVBeVJYd3RiN3pLKwpmaUlZWWJqNng3YnZ6b3pEcU5JMnVYU1FUZ1RaVkRCcHI1Ynk4Z0dLWEpyekNYT1hpcngzcnZISTdqVWtvUTkrCkFwR0tIb21uK04xZFlidzJjV2VhWHRqUG9wOVo3Z3MrQUFkL3FQWmtsU09mZmVMOWRiM3V2OTlOVXhzNjBENUwKMTQxTjZETS80RDgwZ3NJRGx1Nkl4WHRxZldvbVJiQzFBZHl4N3czaTZRc25zTVh0NWQ2dDFhOXpmWHF2NU1QMQpmN1NDc0ZLNkd4cUpBYkNZM1VQdGQ5Zk5xUkFZYWJ5akZEZz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+ tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2UUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktjd2dnU2pBZ0VBQW9JQkFRRGI1OVFZV2NISjZ6RGEKZzNtNmRLaDQ0OUVLUkFYOTJrSGpjaXlaV0tmQURUTmh2MlJhVzJNOVNlZUdCVXBPTkxlQ0JudlVub0NDZmRBUQpBWTg4K1FwM2tobTVmUUw5dEo0UFcwUzNvbHVTd0JreXE1OXB1QzA4ZGlyWnhkRUpxcTkrbmxKTFlZaWYxL0J5CmxTTCt1NVJsYXB4YlYzWHpGSVFXanBoTko0TnF5My9EQkJXY0gvd0ZsaUJjMkNjWUlBeGFaNHpDM1c2YVFZa3QKd0NpUzh4cTZIYUFIZkFTQVNqa2xiUWM1Y2VrWHNVWmR6V25nVmx3MitjUEFsMTJsTEJoSEt4VElFN3FUSU9EaAoyUXFiQldla2dtdk9abkxjbXUycGhEZzdWVnZMR2g1UlhVRTNKcXhud1RnUVhicDFma1VhdFBLalZ4VWpXKzZvCnpBNzhoZDFwQWdNQkFBRUNnZ0VCQU0ybTAzSG1WdFduam10Nzh4WU5UUlNwTVBBaHgxeXNoVnZZaFo3dkN3b1AKRGxOR2N1b1JkeEIxRWdFQzU0ZVZ3MXZsQmw5RHo3aTVRaUFGNVZmSEt5UEJUUzlybXFWN0NTb2hWM1ZJYjgwZwp1eS9vMGs5Qy80TUFtM2hIaUFNN1RaM2pIK0VCR0kwcm0rRDhXZHJSdjZqTWQrYndOdzBaemFGdXZ6M0FTeVZOCjZJU3Z3eEVlWmdhS05BdGlGVXNUODMxUjdKZ09pakIzVDNkbDlRQXo4bVpRYmhBSlRxZWs2ckFaMG93Uk05ZVYKTU8xU1NuV21BRWFaNFgrTzdETTY0Y1ZtVys5Uy9kSk9zc3pkMWh0YStRK2U5QUNtR0N1UU92MzNxTWZIeDcyTApKVE1GeHdCUVBKYmt0UWtWL1RKK1pOcGZRTUVhRlJxckhYenpjVmVsdXdFQ2dZRUE4MFFhMzg5eFVFTW9wc3g4Cnc1UTR3ZzRSNzQrQTh3cjF6SWVXN1ZlSkRpT3BSRHloSFQvYkxHTnBWZzR5ZHY1ai8yQ1VuQWRSOVJSZE5DMXMKcFQ5T2NCZFdHeGRLK29PRjEzeWkyT3Q2cFBRWklDMWVETFNnYWpucWV3WGtZU2RvYUI5d0k1OTh2ejVvTFpUbApTRTVLTzlMSzF5MWRXN2ZjY0Q0dWxBZ25ZZ2tDZ1lFQTUycXVVUUl4K2ZPd2ZjV1VOR2c1NGV5Q2U2ZmdVRi9hCkoyUk1JL2hYWHlDQnpHRXhvVmpGTi9PU1U5R3pHdmI1eHo1dmQvRG1JeHR2V0ZxZk9uMzBNUWZERjY2b2p0bnMKK2FJb3FUTVFvQkYyVjNCYXZFa3pRVFc0NVZqa2pYY3hrWlJQVG91ek5rNnlXMGt5WTZQMUdNYy9jUVAxWE5zZwpLS3IrbDczWitHRUNnWUFkY2tnQ2dYekk1Mmc3VUpObHBVSjlrdkJ1M0NNU3lHZmFleXMwelp6RWZtS1Y1UFRuCnNud1lVbXhFdzNFdVlEckFoZk5YTTdlaS8vVU1STmRhNVYvY1I2YmZucUV2MDgzV3VMcUpvVzkyR2lvVWNBbHIKWmszb3Jkd0pTanhMMmxaVURFSXB2YnQrOXRIcmVwT0tmaGVVU0Q3UGJ5bFcyZG13S0liQTJuL1I2UUtCZ0YxaApLZGZjWitneFVoMWVOYkIwQWk5TTdWWVNacXhvRVRKbUFXZGVWWHM0TmNnUHpDUU1Hd0M1MDJqcExEbU1RVHdKCjBKYjRhUlR2aEIyRjY4eUJlS0MwUGgvM1JXTG5RdjEwVnEzM3doU2xGeml2U0ozRGQrQXZXbDJKWWloSFdZUWgKOFdLRGNweE9ZeC84eUUxMm9uY09KMlptTDRMNWxOOTBLR2w0blZUaEFvR0FTOXhwdFBpUjU2N2lkVWk3c1FUdwpVOThrOE14cEZMOHFDQThBVEFBRzFDUUhiRTVxYTVlbUVFeW50RTB0MlBDc1NWeGpCc201S3R3U1Q3M1Q0QnJaCllhdzI1ZDU2Vnp0NmVubFNsa3E1RjdsUVpwSFgwc0x1OEMvL29TWkhqc1I3VFlxQkV5T0NFUS9nTUZkdmdBVmgKczlqd04yVjJ5NmxYRFUrRVVZZFBWbFE9Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K

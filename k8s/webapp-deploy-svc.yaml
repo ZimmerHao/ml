@@ -26,7 +26,7 @@ spec:
           - "--workers"
           - "1"
           - "--bind"
-          - "0.0.0.0:80"
+          - "0.0.0.0:5000"
           - "--env"
           - "DJANGO_SETTINGS_MODULE=settings.local"
           - "--access-logfile"
@@ -36,7 +36,7 @@ spec:
           - "wsgi"
         env:
           - name: USE_S3
-            value: true
+            value: "true"
         resources:
           requests:
             memory: "100Mi"
@@ -45,7 +45,8 @@ spec:
             memory: "300Mi"
             cpu: "300m"
         ports:
-        - containerPort: 80
+        - name: webapp
+          containerPort: 5000
 
 
 ---
@@ -57,14 +58,14 @@ metadata:
   labels:
     app: webapp
   annotations:
-    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+#    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
 spec:
-  externalTrafficPolicy: Local
+#  externalTrafficPolicy: Local
   ports:
     - name: http
-      port: 80
+      port: 5000
       protocol: TCP
-      targetPort: 80
+      targetPort: 5000
   selector:
     app: webapp
-  type: LoadBalancer
+  type: ClusterIP
