@@ -24,6 +24,13 @@ spec:
           backend:
             serviceName: drone
             servicePort: 80
+  - host: mlflow.deepvega.com
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: mlflow
+            servicePort: 5000
 
 ---
 apiVersion: v1

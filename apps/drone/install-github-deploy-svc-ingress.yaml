@@ -10,6 +10,7 @@ spec:
     matchLabels:
       app: drone
   replicas: 1
+  revisionHistoryLimit: 1
   template:
     metadata:
       labels:
