@@ -1,0 +1,38 @@
+{
+  "name": "dp",
+  "version": "1.0.0",
+  "description": "1. create db (pg)\r 2. install python dependency, maybe you need `virtualenv`.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+  "dev": "webpack --mode development web/src/index.js --output ./frontend/static/frontend/main.js",
+  "build": "webpack --mode production ./frontend/src/index.js --output frontend/static/frontend/main.js"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZimmerHao/ml.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZimmerHao/ml/issues"
+  },
+  "homepage": ".",
+  "devDependencies": {
+    "@babel/core": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "weak-key": "^1.0.1",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.5"
+  }
+}

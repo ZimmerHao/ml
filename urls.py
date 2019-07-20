@@ -16,9 +16,12 @@ Including another URLconf
 from django.urls import include, path
 
 urlpatterns = [
-    path(r'api/v1/users/', include('apps.user.urls')),
-    path(r'api/v1/kops/', include('apps.kops.urls')),
-    path(r'dashboard/', include('dashboard.urls')),
-    path(r'hi/', include('web.urls')),
-    path(r'chat/', include('apps.chat.urls')),
+    path(r"api/v1/users/", include("apps.user.urls")),
+    path(r"api/v1/kops/", include("apps.kops.urls")),
+    path(r"dashboard/", include("dashboard.urls")),
+    path(r"hi/", include("web.urls")),
+    path(r"chat/", include("apps.chat.urls")),
+    path(r"hi/", include("apps.kops.urls")),
+    path(r"hi/", include("apps.console.urls")),
+    path(r"api/v1/console/", include("apps.console.urls")),
 ]

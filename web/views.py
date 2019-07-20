@@ -29,7 +29,7 @@ class LoginView(TemplateView):
         if not user:
             return redirect('web.login')
         login(request, user, backend='apps.user.backends.UserBackend')
-        return redirect('web.index')
+        return redirect('frontend.index')
 
 
 class LogoutView(View):
@@ -48,4 +48,12 @@ class IndexView(TemplateView):
             return redirect('web.login')
         return render(request, self.template_name)
 
+
+
+class FIndex(TemplateView):
+    template_name = 'frontend/index.html'
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('web.login')
+        return render(request, self.template_name)
 

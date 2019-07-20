@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.user",
     "apps.chat",
     "apps.kops",
+    "apps.console",
     "web",
 
 ]
@@ -76,10 +77,10 @@ CORS_ALLOW_HEADERS = (
 )
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-        'core.authentication.CsrfExemptSessionAuthentication',
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.BasicAuthentication",
+        "core.authentication.CsrfExemptSessionAuthentication",
+    )
 }
 
 AUTH_USER_MODEL = "user.User"

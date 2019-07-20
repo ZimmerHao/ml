@@ -44,42 +44,9 @@ spec:
           - name: docker-socket
             mountPath: /var/run/docker.sock
       volumes:
-        - name: drone-sqlite-db
-          hostPath:
-            path: /var/lib/drone
-#            awsElasticBlockStore:
-#              fsType: ext4
-#              volumeID: vol-xxxx
         - name: docker-socket
           hostPath:
             path: /var/run/docker.sock
-
-#---
-#apiVersion: extensions/v1beta1
-#kind: Deployment
-#metadata:
-#  name: drone-agent
-#spec:
-#  replicas: 1
-#  template:
-#    metadata:
-#      labels:
-#        name: drone-agent
-#    spec:
-#      containers:
-#      - name: drone-agent
-#        image: drone/agent:1.0.0
-#        imagePullPolicy: Always
-#        volumeMounts:
-#          - mountPath: /var/run/docker.sock
-#            name: docker-socket
-#        envFrom:
-#          - secretRef:
-#              name: dp-drone-credentials
-#      volumes:
-#        - name: docker-socket
-#          hostPath:
-#            path: /var/run/docker.sock
 
 ---
 kind: Service
