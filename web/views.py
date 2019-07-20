@@ -56,4 +56,3 @@ class FIndex(TemplateView):
         if not request.user.is_authenticated:
             return redirect('web.login')
         return render(request, self.template_name)
-

@@ -43,6 +43,10 @@ class PodLogView(APIView):
         pod_name = request.query_params.get("pod_name")
         k = K8SClient()
         lines = k.get_logs(pod_name)
+        print(type(lines))
+        # d = lines.data
+        # print(type(d))
+        # print("aaa", d, "ccccc")
         return Response({"lines": lines}, status=status.HTTP_200_OK)
 
 

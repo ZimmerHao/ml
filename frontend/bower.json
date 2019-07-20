@@ -12,6 +12,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "^3.4.1"
+    "jquery": "^3.4.1",
+    "admin-lte": "^2.4.15"
   }
 }

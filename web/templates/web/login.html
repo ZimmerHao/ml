@@ -1,11 +1,7 @@
 {% extends "web/base.html" %}
 {% load staticfiles %}
 
-{% block css %}
-<link href="{% static 'assets/css/login.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block container %}
+{% block content %}
 <div class="login-page">
   <div class="form">
     <form class="login-form" method="post">{% csrf_token %}

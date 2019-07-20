@@ -7,5 +7,4 @@ urlpatterns = [
     re_path(r'^login$', views.LoginView.as_view(), name='web.login'),
     re_path(r'^logout$', views.LogoutView.as_view(), name='web.logout'),
     re_path(r'^ui$', views.FIndex.as_view(), name='frontend.index'),
-
 ]
