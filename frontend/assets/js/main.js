@@ -1,23 +1,23 @@
-var logSocket = new WebSocket(
-        'ws://' + window.location.host +
-        '/ws/chat/log/');
-
-logSocket.onmessage = function(e) {
-    var data = JSON.parse(e.data);
-    var message = data['message'];
-    document.querySelector('#pod-log').value += (message + '\n');
-};
-
-logSocket.onclose = function(e) {
-    console.error('Chat socket closed unexpectedly');
-};
-
-document.querySelector('#pod-name-input').onkeyup = function(e) {
-        if (e.keyCode === 13) {  // enter, return
-            document.querySelector('#pod-log-submit').click();
-        }
-};
-
+// var logSocket = new WebSocket(
+//         'ws://' + window.location.host +
+//         '/ws/chat/log/');
+//
+// logSocket.onmessage = function(e) {
+//     var data = JSON.parse(e.data);
+//     var message = data['message'];
+//     document.querySelector('#pod-log').value += (message + '\n');
+// };
+//
+// logSocket.onclose = function(e) {
+//     console.error('Chat socket closed unexpectedly');
+// };
+//
+// document.querySelector('#pod-name-input').onkeyup = function(e) {
+//         if (e.keyCode === 13) {  // enter, return
+//             document.querySelector('#pod-log-submit').click();
+//         }
+// };
+//
 $("#pod-log-submit").click(function () {
     var podName = document.querySelector('#pod-name-input').value;
     $.ajax({
