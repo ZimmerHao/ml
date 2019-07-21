@@ -1,9 +1,15 @@
 {% extends "web/base.html" %}
 {% load staticfiles %}
 
-{% block content %}
+{% block container %}
 <div class="login-page">
   <div class="form">
+    <form class="register-form" method="post" action="/hi/signup">{% csrf_token %}
+      <input name="account" placeholder="email"/>
+      <input name="password" type="password" placeholder="password"/>
+      <button>create</button>
+      <p class="message">Already registered? <a href="#">Sign In</a></p>
+    </form>
     <form class="login-form" method="post">{% csrf_token %}
       <input name="account" placeholder="username">
       <input type="password" name="password" placeholder="password">
