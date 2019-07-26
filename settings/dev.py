@@ -14,8 +14,7 @@ DATABASES = {
 ALLOWED_HOSTS = [
     "localhost",
     "ui.dp.com",
-    "ui.deepvega.com",
-    "*.deepvega.com",
+    ".deepvega.com",
 ]
 
 # DEBUG = False

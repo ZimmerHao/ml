@@ -1,4 +1,9 @@
 
+## List of available urls
+   - console.deepvega.com
+   - zeppelin.deepvega.com
+   - spark-ui.deepvega.com
+
 ## Run on your local
 
 1. create db (pg)

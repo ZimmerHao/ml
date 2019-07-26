@@ -2,7 +2,8 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: traefik-ingress-controller-default-ingress
+  name: traefik-ingress-controller-tony-ingress
+  namespace: ns-tony
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/frontend-entry-points: http,https
@@ -13,11 +14,7 @@ spec:
   - host: console.deepvega.com
     http:
       paths:
-      - path: /
-        backend:
-          serviceName: webapp
-          servicePort: 5000
-      - path: /app/zeppelin/
+      - path: /apps/zeppelin/tony
         backend:
           serviceName: spark-zeppelin-livy-zeppelin
           servicePort: 8080
@@ -26,15 +23,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: traefik-ingress-controller-default-ingress-auth
+  name: traefik-ingress-controller-tony-ingress-auth
+  namespace: ns-tony
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/frontend-entry-points: http,https
     traefik.ingress.kubernetes.io/redirect-entry-point: http
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
-#    ingress.kubernetes.io/auth-type: forward
-#    ingress.kubernetes.io/auth-url: http://console.deepvega.com/api/v1/users/callback/
-#    ingress.kubernetes.io/auth-response-headers: X-Auth-User, X-Secret
 spec:
   rules:
   - host: drone.deepvega.com
@@ -58,10 +53,10 @@ spec:
           backend:
             serviceName: spark-zeppelin-livy-zeppelin
             servicePort: 8080
-  - host: spark-ui.deepvega.com
+  - host: tony.spark-ui.deepvega.com
     http:
       paths:
-        - path: /tony
+        - path: /
           backend:
             serviceName: spark-zeppelin-livy-webui
             servicePort: 8080
@@ -71,6 +66,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: traefik-ingress-configmap
+  namespace: ns-tony
 data:
   traefik.toml: |
     defaultEntryPoints = ["https","http"]
@@ -93,15 +89,13 @@ data:
     entryPoint = "http"
     [api]
     entryPoint = "webapp"
-    [entryPoints.http.auth.forward]
-        address = "http://console.deepvega.com/api/v1/users/callback/"
-        trustForwardHeader = true
 
 ---
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   name: traefik-ingress-controller
+  namespace: ns-tony
   labels:
     k8s-app: traefik-ingress-controller
 spec:
@@ -174,6 +168,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: traefik-ingress-controller-http-service
+  namespace: ns-tony
   annotations: {}
     # service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
 spec:
@@ -190,58 +185,9 @@ spec:
 
 ---
 apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: traefik-ingress-serviceaccount
-
----
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: traefik-ingress-clusterrole
-rules:
-  - apiGroups:
-      - ""
-    resources:
-      - services
-      - endpoints
-      - secrets
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - extensions
-    resources:
-      - ingresses
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - extensions
-    resources:
-      - ingresses/status
-    verbs:
-      - update
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: traefik-ingress-clusterrolebinding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: traefik-ingress-clusterrole
-subjects:
-- kind: ServiceAccount
-  name: traefik-ingress-serviceaccount
-  namespace: default
-
----
-apiVersion: v1
 kind: Secret
 metadata:
+ namespace: ns-tony
  name: traefik-ui-tls-cert
  labels:
    k8s-app: traefik-ingress-controller
@@ -254,6 +200,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
+ namespace: ns-tony
  name: traefik-drone-tls-cert
  labels:
    k8s-app: traefik-ingress-controller

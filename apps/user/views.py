@@ -6,6 +6,7 @@ from django.contrib.auth.models import AnonymousUser
 
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from django.shortcuts import HttpResponseRedirect
 from rest_framework.parsers import JSONParser
 from rest_framework.views import APIView
 
@@ -17,15 +18,13 @@ from core.exceptions import ValidationException
 
 
 class LoginView(generics.GenericAPIView):
-    permission_classes = (
-        permissions.AllowAny,
-    )
+    permission_classes = (permissions.AllowAny,)
     parser_classes = (JSONParser,)
     serializer_class = UserBaseSerializer
 
     def post(self, request):
-        account = request.data.get('account')
-        password = request.data.get('password')
+        account = request.data.get("account")
+        password = request.data.get("password")
 
         user = authenticate(request, account=account, password=password)
         if isinstance(user, AnonymousUser):
@@ -33,14 +32,14 @@ class LoginView(generics.GenericAPIView):
 
         if not user:
             raise ValidationException("login error")
-        login(request, user, backend='apps.user.backends.UserBackend')
-        return Response(data=self.serializer_class(user).data, status=status.HTTP_200_OK)
+        login(request, user, backend="apps.user.backends.UserBackend")
+        return Response(
+            data=self.serializer_class(user).data, status=status.HTTP_200_OK
+        )
 
 
 class LogoutView(generics.GenericAPIView):
-    permission_classes = (
-        permissions.IsAuthenticated,
-    )
+    permission_classes = (permissions.IsAuthenticated,)
     parser_classes = (JSONParser,)
     serializer_class = UserBaseSerializer
 
@@ -49,16 +48,36 @@ class LogoutView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class CallbackView(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny,)
+    parser_classes = (JSONParser,)
+    serializer_class = UserBaseSerializer
+
+    # def post(self, request):
+    #     return request
+
+    def get(self, request):
+        print("-----below is callback")
+        user = getattr(request, 'user', None)
+        print(user)
+        print(request.user)
+        print(request.user.is_authenticated)
+        print(request.session.exists)
+        print(request.session.session_key)
+        if request.user.is_authenticated:
+            return Response(status=status.HTTP_200_OK, headers={"X-Auth-User":user})
+        else:
+            return HttpResponseRedirect(redirect_to="/hi/")
+
+
 class SignUpView(generics.GenericAPIView):
-    permission_classes = (
-        permissions.AllowAny,
-    )
+    permission_classes = (permissions.AllowAny,)
     parser_classes = (JSONParser,)
     serializer_class = UserBaseSerializer
 
     def post(self, request):
-        account = request.data.get('account')
-        password = request.data.get('password')
+        account = request.data.get("account")
+        password = request.data.get("password")
 
         try:
             validate_email(account)
@@ -71,21 +90,21 @@ class SignUpView(generics.GenericAPIView):
 
         nickname = generate("en")
         user = User.objects.create_user(nickname, password, email=account)
-        login(request, user, backend='apps.user.backends.UserBackend')
+        login(request, user, backend="apps.user.backends.UserBackend")
 
-        return Response(data=self.serializer_class(user).data, status=status.HTTP_200_OK)
+        return Response(
+            data=self.serializer_class(user).data, status=status.HTTP_200_OK
+        )
 
 
 class PasswordResetView(APIView):
-    permission_classes = (
-        permissions.AllowAny,
-    )
+    permission_classes = (permissions.AllowAny,)
     parser_classes = (JSONParser,)
     serializer_class = UserBaseSerializer
 
     def post(self, request):
-        account = request.data.get('account')
-        new = request.data.get('new')
+        account = request.data.get("account")
+        new = request.data.get("new")
 
         user = User.objects.filter(email=account, is_active=True).first()
         if not user:
@@ -95,5 +114,5 @@ class PasswordResetView(APIView):
         user.save()
 
         request.session.flush()
-        login(request, user, backend='apps.user.backends.UserBackend')
+        login(request, user, backend="apps.user.backends.UserBackend")
         return Response(self.serializer_class(user).data, status=status.HTTP_200_OK)

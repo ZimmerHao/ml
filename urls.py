@@ -14,6 +14,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.urls import include, path
+from django.contrib import admin
+from django.conf import settings
+from django.contrib.auth.views import auth_logout
 
 urlpatterns = [
     path(r"api/v1/users/", include("apps.user.urls")),
@@ -23,5 +26,10 @@ urlpatterns = [
     path(r"chat/", include("apps.chat.urls")),
     path(r"hi/", include("apps.kops.urls")),
     path(r"hi/", include("apps.console.urls")),
-    path(r"api/v1/console/", include("apps.console.urls")),
+    path(r"app/", include("apps.console.urls")),
+    path(r"admin/", admin.site.urls),
+    path(r"oauth/", include('social_django.urls', namespace='social')),
+    path(r"logout/", auth_logout, {'next_page': settings.LOGOUT_REDIRECT_URL},
+         name='logout')
 ]
+
