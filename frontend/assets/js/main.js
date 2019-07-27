@@ -59,7 +59,15 @@ $("#yaml-url-delete").click(function () {
     });
 });
 
-$(".dashboard-pod").click(function () {
-    $(".content-dashboard-pod").removeClass("hide");
-
+$(".content-dashboard-pod button").click(function () {
+    var podName = $(this).data("pod-name");
+    $.ajax({
+        type: 'GET',
+        url: '/api/v1/kops/pod_log/',
+        data: {"pod_name": podName},
+        success: function (data) {
+            $("#pod-log").val(data["lines"]);
+        },
+        dataType: "json"
+    });
 })

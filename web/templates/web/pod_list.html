@@ -1,0 +1,35 @@
+{% extends "web/index.html" %}
+{% load staticfiles %}
+
+{% block pod-list %}
+<div class="row content-dashboard-pod">
+    <div class="col-md-6">
+        <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">All Pods</h3>
+            </div>
+            <div class="box-body no-padding">
+              <table class="table table-condensed">
+                <tr>
+                  <th style="width: 10px">#</th>
+                  <th>PodName</th>
+                  <th>Status</th>
+                  <th>Operation</th>
+                </tr>
+                {% for p in pods %}
+                <tr>
+                    <td>{{ p.index }}.</td>
+                    <td>{{ p.pod_name }}</td>
+                    <td><span class="label label-success">{{ p.pod_status }}</span></td>
+                    <td><button type="button" class="label label-info" data-pod-name="{{ p.pod_name }}">Show Log</button></td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <textarea id="pod-log" class="form-control" rows="30"></textarea>
+    </div>
+</div>
+{% endblock %}

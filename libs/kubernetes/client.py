@@ -4,6 +4,7 @@ from kubernetes import client as kube_client
 from kubernetes import config as kube_config
 import yaml
 from urllib.request import urlopen
+from django.conf import settings
 
 
 class K8SClient:
@@ -20,6 +21,8 @@ class K8SClient:
     def get_resources_namespaced(self, resource: str, namespace: str = "default"):
         if resource in ["pods", "pod", "po"]:
             ret = self.k_client_v1.list_namespaced_pod(namespace=namespace, watch=False)
+            if not settings.DEBUG:
+                return ret
             for i in ret.items:
                 print(
                     "%s\t%s\t%s"
@@ -30,9 +33,8 @@ class K8SClient:
             return "Why don't you try Pods!"
 
     def get_logs(self, resource_name: str, namespace: str = "default"):
-        print("get log ", resource_name)
         ret = self.k_client_v1.read_namespaced_pod_log(
-            resource_name, namespace, follow=True, _preload_content=False,
+            resource_name, namespace, follow=False
         )
         return ret
 

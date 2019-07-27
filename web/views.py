@@ -6,6 +6,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from core.exceptions import ValidationException
 from nickname_generator import generate
+from libs.kubernetes.client import K8SClient
 
 from apps.user.models import User
 from apps.user.backends import UserBackend
@@ -86,3 +87,23 @@ class FIndex(TemplateView):
         if not request.user.is_authenticated:
             return redirect('web.login')
         return render(request, self.template_name)
+
+
+class PodListView(TemplateView):
+
+    template_name = 'web/pod_list.html'
+
+    def get(self, request):
+        namespace = request.GET.get("namespace", "default")
+        k = K8SClient()
+        res = k.get_resources_namespaced(resource="po", namespace=namespace)
+        pods = []
+        for index, pod in enumerate(res.items):
+            pods.append({
+                "index": index + 1,
+                "pod_name": pod.metadata.name,
+                "pod_status": pod.status.phase,
+                "pod_namespace": pod.metadata.namespace,
+                "created_time": pod.metadata.creation_timestamp,
+            })
+        return render(request, self.template_name, {"pods": pods})
