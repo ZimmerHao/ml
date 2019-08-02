@@ -2,8 +2,8 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: traefik-ingress-controller-tony-ingress-auth
-  namespace: ns-tony
+  name: traefik-ingress-controller-mike-ingress-auth
+  namespace: ns-mike
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/frontend-entry-points: http,https
@@ -14,33 +14,33 @@ metadata:
     ingress.kubernetes.io/auth-response-headers: X-Auth-User, X-Secret
 spec:
   rules:
-  - host: tony.drone.deepvega.com
+  - host: mike.drone.deepvega.com
     http:
       paths:
         - path: /
           backend:
             serviceName: drone
             servicePort: 80
-  - host: tony.mlflow.deepvega.com
+  - host: mike.mlflow.deepvega.com
     http:
       paths:
         - path: /
           backend:
             serviceName: mlflow
             servicePort: 5000
-  - host: tony.zeppelin.deepvega.com
+  - host: mike.zeppelin.deepvega.com
     http:
       paths:
         - path: /
           backend:
-            serviceName: spark-zeppelin-livy-zeppelin
+            serviceName: spark-zeppelin-livy-mike-zeppelin
             servicePort: 8080
-  - host: tony.spark-ui.deepvega.com
+  - host: mike.spark-ui.deepvega.com
     http:
       paths:
         - path: /
           backend:
-            serviceName: spark-zeppelin-livy-webui
+            serviceName: spark-zeppelin-livy-mike-webui
             servicePort: 8080
 
 ---
@@ -48,7 +48,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: traefik-ingress-configmap
-  namespace: ns-tony
+  namespace: ns-mike
 data:
   traefik.toml: |
     defaultEntryPoints = ["https","http"]
@@ -79,7 +79,7 @@ kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
   name: traefik-ingress-controller
-  namespace: ns-tony
+  namespace: ns-mike
   labels:
     k8s-app: traefik-ingress-controller
 spec:
@@ -152,7 +152,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: traefik-ingress-controller-http-service
-  namespace: ns-tony
+  namespace: ns-mike
   annotations: {}
     # service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
 spec:
@@ -171,7 +171,7 @@ spec:
 apiVersion: v1
 kind: Secret
 metadata:
- namespace: ns-tony
+ namespace: ns-mike
  name: traefik-ui-tls-cert
  labels:
    k8s-app: traefik-ingress-controller
@@ -184,7 +184,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
- namespace: ns-tony
+ namespace: ns-mike
  name: traefik-drone-tls-cert
  labels:
    k8s-app: traefik-ingress-controller
