@@ -1,23 +1,4 @@
-// var logSocket = new WebSocket(
-//         'ws://' + window.location.host +
-//         '/ws/chat/log/');
-//
-// logSocket.onmessage = function(e) {
-//     var data = JSON.parse(e.data);
-//     var message = data['message'];
-//     document.querySelector('#pod-log').value += (message + '\n');
-// };
-//
-// logSocket.onclose = function(e) {
-//     console.error('Chat socket closed unexpectedly');
-// };
-//
-// document.querySelector('#pod-name-input').onkeyup = function(e) {
-//         if (e.keyCode === 13) {  // enter, return
-//             document.querySelector('#pod-log-submit').click();
-//         }
-// };
-//
+
 $("#pod-log-submit").click(function () {
     var podName = document.querySelector('#pod-name-input').value;
     $.ajax({
@@ -61,6 +42,27 @@ $("#yaml-url-delete").click(function () {
 
 $(".content-dashboard-pod button").click(function () {
     var podName = $(this).data("pod-name");
+    // var logSocket = new WebSocket(
+    //     'ws://' + window.location.host + '/ws/pod_log/' + podName + '/');
+    //
+    // logSocket.onmessage = function(e) {
+    //     var data = JSON.parse(e.data);
+    //     var message = data['message'];
+    //     if (message != "") {
+    //         document.querySelector('#pod-log').value += message;
+    //     }
+    // };
+    //
+    // logSocket.onclose = function(e) {
+    //     console.error('Chat socket closed unexpectedly');
+    // };
+    //
+    // logSocket.onopen = function(e) {
+    //     logSocket.send(JSON.stringify({
+    //         'message': "this is a request"
+    //     }));
+    // };
+
     $.ajax({
         type: 'GET',
         url: '/api/v1/kops/pod_log/',
