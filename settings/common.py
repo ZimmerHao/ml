@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "django_extensions",
     "channels",
     "storages",
@@ -48,8 +49,6 @@ INSTALLED_APPS = [
     "apps.kops",
     "apps.console",
     "web",
-    "apps.oauth_provider",
-    "oauth2_provider",
     "corsheaders",
     "social_django",
 
@@ -65,7 +64,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "core.middleware.BusinessExceptionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "oauth2_provider.middleware.OAuth2TokenMiddleware",
+    "social_django.middleware.SocialAuthExceptionMiddleware"
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -86,17 +85,19 @@ CORS_ALLOW_HEADERS = (
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication",
+
+        "rest_framework.authentication.TokenAuthentication",
         "core.authentication.CsrfExemptSessionAuthentication",
-    )
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated", )
+
 }
 
 AUTH_USER_MODEL = "user.User"
 
 AUTHENTICATION_BACKENDS = [
-    "oauth2_provider.backends.OAuth2Backend",
     "social_core.backends.google.GoogleOAuth2",
-    "social_core.backends.github.GithubOAuth2",
     "apps.user.backends.UserBackend",
     "apps.user.backends.OAuth2Backend",
     "django.contrib.auth.backends.ModelBackend",
@@ -108,11 +109,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "811482518407-ev911rrc0473obsbnfpi0n80q4aj7bb8.a
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "6i4DpmS2OAxGLTGMwNX5KwxE"
 LOGIN_URL = '/auth/login/google-oauth2/'
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
-SOCIAL_AUTH_GITHUB_OAUTH2_KEY = 'INSERT_PROVIDED_KEY_HERE'
-SOCIAL_AUTH_GITHUB_OAUTH2_SECRET = 'INSERT_PROVIDED_SECRET_HERE'
+LOGIN_REDIRECT_URL = '/hi/ui'
+LOGOUT_REDIRECT_URL = '/hi/logout'
 
 ROOT_URLCONF = "urls"
 

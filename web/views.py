@@ -6,9 +6,39 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from core.exceptions import ValidationException
 from nickname_generator import generate
-
 from apps.user.models import User
 from apps.user.backends import UserBackend
+from rest_framework.authtoken.models import Token
+
+
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_200_OK,
+    HTTP_401_UNAUTHORIZED
+)
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+
+
+@csrf_exempt
+@api_view(["GET"])
+def auth_api(request):
+    data = {'sample_data': 123}
+    request_user = str(request.user)
+    request_host = str(request.META.get('HTTP_X_FORWARDED_HOST'))
+    print(request.META)
+
+    print(request_user)
+    print(request_host)
+
+    if request_user not in request_host and request_host != 'console.deepvega.com':
+        print(f"You are as user {request_user} but trying to access {request_host}")
+        return Response(status=HTTP_401_UNAUTHORIZED)
+    else:
+        return Response(data, status=HTTP_200_OK)
 
 
 class LoginView(TemplateView):
@@ -24,10 +54,12 @@ class LoginView(TemplateView):
             return redirect('web.index')
         return render(request, self.template_name)
 
+    @permission_classes((AllowAny,))
     def post(self, request):
         account = request.POST.get('account')
         password = request.POST.get('password')
         user = authenticate(account=account, password=password)
+        token, _ = Token.objects.get_or_create(user=user)
         if isinstance(user, AnonymousUser):
             return redirect('web.login')
         if not user:

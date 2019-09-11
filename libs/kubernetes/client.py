@@ -13,6 +13,8 @@ class K8SClient:
         except:
             kube_config.load_kube_config()
         self.k_client_v1 = kube_client.CoreV1Api()
+        self.k_client_ext_v1_beta1 = kube_client.ExtensionsV1beta1Api()
+        self.k_client_rbac_auth_v1_beta1 = kube_client.RbacAuthorizationV1beta1Api()
         self._SPARKAPP_GROUP = "sparkoperator.k8s.io"
         self._SPARKAPP_VERSION = "v1beta1"
         self._SPARKAPP_PLURAL = "sparkapplications"
@@ -32,7 +34,7 @@ class K8SClient:
     def get_logs(self, resource_name: str, namespace: str = "default"):
         print("get log ", resource_name)
         ret = self.k_client_v1.read_namespaced_pod_log(
-            resource_name, namespace, follow=True, _preload_content=False,
+            resource_name, namespace, follow=True, _preload_content=False
         )
         return ret
 
@@ -51,7 +53,7 @@ class K8SClient:
         api_instance.create_namespaced_custom_object(
             group=self._SPARKAPP_GROUP,
             version=self._SPARKAPP_VERSION,
-            namespace=yaml_obj['metadata']['namespace'],
+            namespace=yaml_obj["metadata"]["namespace"],
             plural=self._SPARKAPP_PLURAL,
             body=yaml_obj,
         )
@@ -59,19 +61,19 @@ class K8SClient:
         res = api_instance.get_namespaced_custom_object(
             group=self._SPARKAPP_GROUP,
             version=self._SPARKAPP_VERSION,
-            namespace=yaml_obj['metadata']['namespace'],
+            namespace=yaml_obj["metadata"]["namespace"],
             plural=self._SPARKAPP_PLURAL,
             name=yaml_obj["metadata"]["name"],
         )
         return f"SparkApp {res['metadata']['name']} created"
 
-    def delete_sparkapp_yaml_file(self, yaml_url: str,):
-        api_instance,yaml_obj = self.init_k8s_instance_for_spark_app(yaml_url)
+    def delete_sparkapp_yaml_file(self, yaml_url: str):
+        api_instance, yaml_obj = self.init_k8s_instance_for_spark_app(yaml_url)
         res = api_instance.delete_namespaced_custom_object(
             group=self._SPARKAPP_GROUP,
             version=self._SPARKAPP_VERSION,
             plural=self._SPARKAPP_PLURAL,
-            namespace=yaml_obj['metadata']['namespace'],
+            namespace=yaml_obj["metadata"]["namespace"],
             name=yaml_obj["metadata"]["name"],
             body=kube_client.V1DeleteOptions(),
         )

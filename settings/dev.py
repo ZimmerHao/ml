@@ -3,18 +3,19 @@ from settings.common import *
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "news",
+        "NAME": "data_service_dev",
         "USER": "automatic_review_replica_staging",
-        "PASSWORD": "VH3GwNjFMrmXJLPbLsYbgfPJup3ozd4Zvrbbq",
-        "HOST": "automatic-review-staging-replica.cugtl68vtrxy.eu-central-1.rds.amazonaws.com",
+        "PASSWORD": "mypass",
+        "HOST": "segment.cugtl68vtrxy.eu-central-1.rds.amazonaws.com",
         "PORT": "5432",
     }
 }
 
 ALLOWED_HOSTS = [
     "localhost",
-    "ui.dp.com",
+    ".dp.com",
     ".deepvega.com",
+    ".svc.cluster.local"
 ]
 
 # DEBUG = False
@@ -40,3 +41,7 @@ if USE_S3:
 #     STATIC_ROOT = os.path.join(BASE_DIR, 'frontend')
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'frontend'),)
+
+
+SESSION_COOKIE_DOMAIN="deepvega.com"
+SESSION_COOKIE_NAME = 'deepvegasessionid'

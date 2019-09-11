@@ -42,7 +42,7 @@ spec:
             memory: "100Mi"
             cpu: "100m"
           limits:
-            memory: "300Mi"
+            memory: "384Mi"
             cpu: "300m"
         ports:
         - name: webapp

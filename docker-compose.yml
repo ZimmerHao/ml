@@ -1,12 +1,19 @@
 version: '3'
 services:
-  pg:
-    image: postgres:10.6
-    container_name: "pg_dp"
-    volumes:
-      - "dbdata:/var/lib/postgresql/data"
-    ports:
-      - "5432:5432"
+#  pg:
+#    image: postgres:10.6
+#    container_name: "pg_dp"
+#    volumes:
+#      - "dbdata:/var/lib/postgresql/data"
+#    ports:
+#      - "5432:5432"
+
+#  redis:
+#    image: redis
+#    container_name: cache_redis
+#    ports:
+#      - "6379:6379"
+
 #  web:
 #    build: .
 #    command: gunicorn --workers 3
@@ -21,6 +28,19 @@ services:
 #      - "/tmp/ml:/tmp/ml"
 #    ports:
 #      - "5000:5000"
+
+#  arangodb:
+#    image: arangodb/arangodb
+#    container_name: "arangodb"
+#    ports:
+#      - 8529:8529
+#    environment:
+#      - ARANGO_NO_AUTH=1
+  mlflow:
+    image: 631741882205.dkr.ecr.eu-central-1.amazonaws.com/infin-data-ml:base-1.0-py3.6.6
+    container_name: "ml-prediction"
+    ports:
+      - 5000:5000
 
 volumes:
   dbdata:

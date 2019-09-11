@@ -88,7 +88,7 @@ class SignUpView(generics.GenericAPIView):
         if u:
             raise ValidationException("account exist")
 
-        nickname = generate("en")
+        nickname = account.split("@")[0]
         user = User.objects.create_user(nickname, password, email=account)
         login(request, user, backend="apps.user.backends.UserBackend")
 

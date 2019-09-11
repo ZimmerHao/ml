@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.kauth.models import KRolesMixin
-
+from libs.utils import generate_hash_by_username_creation_epoch
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -16,7 +16,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_user(self, nickname, password, email=None, **extra_fields):
+    def create_user(self, nickname, hashname, password, email=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
 
@@ -32,7 +32,7 @@ class UserManager(BaseUserManager):
             email = self.normalize_email(email)
             user_params.update(email=email)
 
-        user_params.update(nickname=nickname, password=password)
+        user_params.update(nickname=nickname, password=password, hashname=hashname)
         user_params.update(**extra_fields)
         user_params = self._format_user_params(**user_params)
         return self._create_user(**user_params)
@@ -49,7 +49,7 @@ class UserManager(BaseUserManager):
                 )
         return params
 
-    def create_superuser(self, nickname, email, password, **extra_fields):
+    def create_superuser(self, nickname, hashname, email, password, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -60,7 +60,7 @@ class UserManager(BaseUserManager):
 
         user_params = dict()
         email = self.normalize_email(email)
-        user_params.update(email=email, nickname=nickname, password=password)
+        user_params.update(email=email, nickname=nickname, password=password, hashname=hashname)
         user_params.update(extra_fields)
         return self._create_user(**user_params)
 
@@ -70,6 +70,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, KRolesMixin):
     nickname = models.CharField(max_length=255, verbose_name=_("nickname"))
+    hashname = models.CharField(max_length=255, verbose_name=_("hashname"), default=generate_hash_by_username_creation_epoch(nickname))
     avatar = models.CharField(max_length=255, blank=True, verbose_name=_("avatar"))
     email = models.EmailField(unique=True, verbose_name=_("email"))
     country = models.CharField(max_length=255, blank=True, verbose_name=_("id type"))
@@ -88,7 +89,7 @@ class User(AbstractBaseUser, KRolesMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = "nickname"
+    USERNAME_FIELD = "hashname"
 
     class Meta:
         app_label = "user"
@@ -142,17 +143,22 @@ class UserManagerOAuth(BaseUserManager):
         return self.get(**{self.model.USERNAME_FIELD: username})
 
 
-class UserOAuth(models.Model):
+class UserOAuth(AbstractBaseUser):
     username = models.CharField(max_length=255, verbose_name=_("username"))
-    oauth_type = models.SmallIntegerField(verbose_name=_("third party type"))
+    email = models.CharField(max_length=255, verbose_name=_("email"), default="email@example.com")
+    oauth_type = models.SmallIntegerField(verbose_name=_("third party type"), default=0)
     oauth_id = models.CharField(max_length=255, verbose_name=_("third party id"))
     oauth_token = models.CharField(max_length=255, verbose_name=_("third party token"))
-    expires = models.IntegerField(blank=True, verbose_name=_("expire time"))
+    expires = models.IntegerField(blank=True, verbose_name=_("expire time"), default=1911461050)
     is_active = models.BooleanField(default=True, verbose_name=_("active status"))
+    is_staff = models.BooleanField(default=False, verbose_name=_("id staff"))
+    is_superuser = models.BooleanField(default=True, verbose_name=_("is superuser"))
     date_added = models.DateTimeField(auto_now_add=True, verbose_name=_("created date"))
     date_updated = models.DateTimeField(auto_now=True, verbose_name=_("updated date"))
+    last_login = models.DateTimeField(auto_now=True, verbose_name=_("last login date"))
 
     objects = UserManagerOAuth()
+    USERNAME_FIELD = "email"
 
     class Meta:
         app_label = "user"

@@ -15,14 +15,14 @@ class ZeppelinView(RedirectView):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             print("user authed !")
-            redirect("http://console.deepvega.com/app/zeppelin/tony")
+            redirect("http://console.deepvega.com/hi/zeppelin/tony")
             # return super().get_redirect_url(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             print("user authed !")
             # return super().get_redirect_url(*args, **kwargs)
-            redirect("http://console.deepvega.com/app/zeppelin/tony")
+            redirect("http://console.deepvega.com/hi/zeppelin/tony")
         return render(request, self.template_name)
 
 class ZeppelinView3(RedirectView):

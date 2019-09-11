@@ -3,10 +3,13 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: traefik-ingress-controller-default-ingress
+  namespace: default
+  labels:
+    k8s-app: traefik-ingress-controller
   annotations:
     kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
-    traefik.ingress.kubernetes.io/redirect-entry-point: http
+    traefik.ingress.kubernetes.io/frontend-entry-points: https,http
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
 spec:
   rules:
@@ -17,54 +20,38 @@ spec:
         backend:
           serviceName: webapp
           servicePort: 5000
-      - path: /app/zeppelin/
-        backend:
-          serviceName: spark-zeppelin-livy-zeppelin
-          servicePort: 8080
+  - host: console.dp.com
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: webapp
+            servicePort: 5000
 
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: traefik-ingress-controller-default-ingress-auth
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
-    traefik.ingress.kubernetes.io/redirect-entry-point: http
-    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+#---
+#apiVersion: extensions/v1beta1
+#kind: Ingress
+#metadata:
+#  name: traefik-ingress-controller-default-ingress-auth
+#  labels:
+#    k8s-app: traefik-ingress-controller
+#  annotations:
+#    kubernetes.io/ingress.class: traefik
+#    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+#    traefik.ingress.kubernetes.io/redirect-entry-point: http
+#    traefik.ingress.kubernetes.io/redirect-permanent: "true"
 #    ingress.kubernetes.io/auth-type: forward
 #    ingress.kubernetes.io/auth-url: http://console.deepvega.com/api/v1/users/callback/
 #    ingress.kubernetes.io/auth-response-headers: X-Auth-User, X-Secret
-spec:
-  rules:
-  - host: drone.deepvega.com
-    http:
-      paths:
-        - path: /
-          backend:
-            serviceName: drone
-            servicePort: 80
-  - host: mlflow.deepvega.com
-    http:
-      paths:
-        - path: /
-          backend:
-            serviceName: mlflow
-            servicePort: 5000
-  - host: zeppelin.deepvega.com
-    http:
-      paths:
-        - path: /
-          backend:
-            serviceName: spark-zeppelin-livy-zeppelin
-            servicePort: 8080
-  - host: spark-ui.deepvega.com
-    http:
-      paths:
-        - path: /tony
-          backend:
-            serviceName: spark-zeppelin-livy-webui
-            servicePort: 8080
+#spec:
+#  rules:
+#  - host: tony.spark-ui.deepvega.com
+#    http:
+#      paths:
+#        - path: /
+#          backend:
+#            serviceName: webapp
+#            servicePort: 5000
 
 ---
 apiVersion: v1
@@ -87,15 +74,19 @@ data:
             CertFile = "/ssl/drone/tls.crt"
             KeyFile = "/ssl/drone/tls.key"
     [kubernetes]
+
       [kubernetes.ingressEndpoint]
         publishedService = "default/traefik-ingress-controller-http-service"
+
     [ping]
     entryPoint = "http"
     [api]
     entryPoint = "webapp"
     [entryPoints.http.auth.forward]
-        address = "http://console.deepvega.com/api/v1/users/callback/"
+        address = "https://console.deepvega.com/hi/auth"
         trustForwardHeader = true
+
+    logLevel = "DEBUG"
 
 ---
 kind: Deployment
@@ -128,9 +119,9 @@ spec:
           configMap:
             name: traefik-ingress-configmap
       containers:
-      - image: traefik
+      - image: traefik:1.7.12
         name: traefik-ingress-controller
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             cpu: 200m
@@ -168,6 +159,7 @@ spec:
         args:
         - --logLevel=INFO
         - --configfile=/config/traefik.toml
+
 
 ---
 kind: Service
