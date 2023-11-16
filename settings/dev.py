@@ -5,8 +5,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "news",
         "USER": "automatic_review_replica_staging",
-        "PASSWORD": "VH3GwNjFMrmXJLPbLsYbgfPJup3ozd4Zvrbbq",
-        "HOST": "automatic-review-staging-replica.cugtl68vtrxy.eu-central-1.rds.amazonaws.com",
+        "PASSWORD": "VH3GwNjFMrXJLPbLsYbgfPJup3ozd4Zvrbbq",
+        "HOST": "",
         "PORT": "5432",
     }
 }
