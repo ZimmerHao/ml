@@ -37,31 +37,9 @@
         {% include 'web/index_header.html' %}
         {% include 'web/index_aside.html' %}
         <div class="content-wrapper">
-{#            <!-- Content Header (Page header) -->#}
-{#            <section class="content-header">#}
-{#              <h1>#}
-{#                Dashboard#}
-{#                <small>Version 2.0</small>#}
-{#              </h1>#}
-{#              <ol class="breadcrumb">#}
-{#                <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>#}
-{#                <li class="active">Dashboard</li>#}
-{#              </ol>#}
-{#            </section>#}
             <section class="content">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="content-dashboard-pod hide">
-                            <textarea id="pod-log" cols="100" rows="20"></textarea><br/>
-                            <h2>pod-name-input</h2>
-                            <input id="pod-name-input" type="text" size="100"/>
-                            <input id="pod-log-submit" type="button" value="Show"/>
-                            <h2>YAML url to submit</h2>
-                            <input id="yaml-url-input" type="text" size="100"/>
-                            <input id="yaml-url-submit" type="button" value="Create"/>
-                        </div>
-                    </div>
-                </div>
+            {% block pod-list %}
+            {% endblock %}
             </section>
         </div>
     </div>
